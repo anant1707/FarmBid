@@ -20,13 +20,12 @@ def register():
     form=RegistrationForm()
     if request.method=='POST':
         if form.validate():
-            print("validated")
             cursor=conn.cursor()
             result=request.form.to_dict()
             form.image.data.save(os.path.join(os.getcwd(),'static/media/profile_image',form.data['email']))
             regdata=[]
             for key,value in result.items():
-                if(key=='Sign Up' or key=='cpassword' or key=='csrf_token'):
+                if(key=='submit' or key=='cpassword' or key=='csrf_token'):
                     continue
                 elif (key=='password'):
                     regdata.append(pbkdf2_sha256.hash(value))

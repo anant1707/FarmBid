@@ -29,7 +29,9 @@
                         {%if field.type=="SubmitField"%}
                         {{field(class_="btn btn-primary btn-block")}}
                         {%else%}
+                        {%if field.label.text!="CSRF Token"%}
                         {{field.label}} {{field(class_="form-control")}}
+                        {%endif%}
                         {%endif%}
                     </div>
                     {%endfor%}
