@@ -28,6 +28,15 @@ class EmptyForm(Form):
    a=6
 
 
+class UpdateForm(Form):
+   first_name = StringField("First Name", validators=[DataRequired(), Length(min=2, max=30)])
+   last_name = StringField("Last Name", validators=[DataRequired(), Length(min=2, max=30)])
+   address = TextAreaField("Address Feild", validators=[DataRequired(), Length(max=500)])
+   pincode = StringField("Pincode", validators=[DataRequired(), Length(min=6, max=6)])
+   dob = StringField("DOB")
+   change_profile_image = FileField(validators=[FileAllowed(['jpg', 'png'], 'images only'), DataRequired()])
+   password=PasswordField("Password",validators=[DataRequired(),Length(min=8,max=20)])
+   submit = SubmitField("Update")
 
 
 
