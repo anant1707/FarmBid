@@ -1,6 +1,6 @@
 from flask import Flask,render_template,request,redirect,url_for,flash,session,send_from_directory
 import psycopg2 as psql
-from forms import RegistrationForm,LoginForm
+from forms import RegistrationForm,LoginForm,EmptyForm
 import os
 from passlib.hash import pbkdf2_sha256
 
@@ -22,7 +22,7 @@ def register():
         if form.validate():
             cursor=conn.cursor()
             result=request.form.to_dict()
-            form.image.data.save(os.path.join(os.getcwd(),'static/media/profile_image',form.data['email']))
+            form.image.data.save(os.path.join(os.getcwd(),'static/media/profile_image',form.data['email'].lower()))
             regdata=[]
             for key,value in result.items():
                 if(key=='submit' or key=='cpassword' or key=='csrf_token'):
@@ -57,26 +57,31 @@ def login():
     if(request.method == 'POST'):
         cursor=conn.cursor()
         result=form.data
-        cursor.execute(f"Select passwordd from userinfo where email='{result['email']}'")
+        print(result)
+        cursor.execute(f"Select passwordd from userinfo where lower(email)='{result['email'].lower()}'")
         a=cursor.fetchone()
         if a is None:
             flash(f"NO ACCOUNT EXISTS WITH THIS USERNAME",'danger')
             return redirect(url_for('register'))
         else:
-            pbkdf2_sha256.verify(result['password'], a[0])
-            session['email']=result['email']
-            session['logged-in']=True
-            return redirect(url_for('profile'))
+            if pbkdf2_sha256.verify(result['password'], a[0]):
+
+                session['email']=result['email']
+                session['logged-in']=True
+                return redirect(url_for('profile'))
+            else:
+                flash("Incorrect Password!","danger")
+                return render_template("login.html",form=form)
     else:
         flash("welcome to login page!", "success")
         return render_template('login.html',form=form)
 
 @app.route('/profile',methods=['GET','POST'])
 def profile():
-    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'])
+    form=EmptyForm()
+    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
     print(session['email'])
-    return render_template('profile.html',dp=full_filename)
-
+    return render_template('profile.html',dp=full_filename,form=form)
 
 if(__name__== '__main__'):
-        app.run(debug=True)
+        app.run("192.168.43.127",debug=True)
