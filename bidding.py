@@ -4,7 +4,6 @@ from forms import RegistrationForm,LoginForm,EmptyForm
 import os
 from passlib.hash import pbkdf2_sha256
 
-
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 app=Flask(__name__)
@@ -78,10 +77,13 @@ def login():
 
 @app.route('/profile',methods=['GET','POST'])
 def profile():
+    cursor=conn.cursor()
     form=EmptyForm()
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
-    print(session['email'])
-    return render_template('profile.html',dp=full_filename,form=form)
+    cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name='userinfo'")
+    list1=[a[0] for a in cursor.fetchall()]
+    cursor.execute(f"SELECT * FROM userinfo where email='{session['email']}'")
+    return render_template('profile.html',dp=full_filename,form=form,dict1=dict(zip(tuple(list1),cursor.fetchone())))
 
 if(__name__== '__main__'):
-        app.run("192.168.43.127",debug=True)
+        app.run(debug=True)

@@ -1,0 +1,34 @@
+{%extends "base.html"%}
+{%block content%}
+    <main class="page login-page">
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">PROFILE</h2>
+                </div>
+                <div class="media"><img class="mr-3" height="130" width="130" border-radius="50%" src="{{dp}}">
+                    <div class="media-body">
+                        <br>
+
+                        <h3>{{dict1['first_name']}} {{dict1['last_name']}}</h3>
+                    </div>
+                </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            {%for key,value in dict1.items()%}
+                            {%if key not in ['first_name','last_name','passwordd','aadhar','panno','gst']%}
+                                <tr>
+                                    <th>{{key}}</th>
+                                    <th>{{value}}</th>
+                                </tr>
+                            {%endif%}
+                            {%endfor%}
+                            </thead>
+                        </table>
+                    </div>
+                <button class="btn btn-primary btn-block">Update Profile</button>
+            </div>
+        </section>
+    </main>
+   {%endblock content%}
