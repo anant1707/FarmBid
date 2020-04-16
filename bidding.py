@@ -5,10 +5,11 @@ import os
 from passlib.hash import pbkdf2_sha256
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='Project' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
+dict1={'first_name':'Anant'}
 
 @app.route('/')
 def home():
@@ -83,20 +84,23 @@ def profile():
     cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name='userinfo'")
     list1=[a[0] for a in cursor.fetchall()]
     cursor.execute(f"SELECT * FROM userinfo where email='{session['email']}'")
-    return render_template('profile.html',dp=full_filename,form=form,dict1=dict(zip(tuple(list1),cursor.fetchone())))
+    global dict1
+    dict1=dict(zip(tuple(list1),cursor.fetchone()))
+    return render_template('profile.html',dp=full_filename,form=form,dict1=dict1)
 
-@app.route('/updateprofile',methods=['GET','POST'])
-def updateprofile():
+@app.route('/updateprofile>',methods=['GET','POST'])
+def updateprofile(dict1):
     cursor=conn.cursor()
     form=UpdateForm()
     form.address.data="12345"
-
     form.dob.data="22/11/19"
     form.first_name.data="rahul"
     form.last_name.data="garg"
     form.pincode.data="160036"
+    print(dict1)
 
     return render_template('updateprofile.html',form=form)
+
 
 if(__name__== '__main__'):
         app.run(debug=True)
