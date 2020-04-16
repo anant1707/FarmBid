@@ -1,4 +1,4 @@
 flask
 psycopg2
-wtf-forms
+flask-wtf
 passlib
