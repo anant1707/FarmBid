@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request,redirect,url_for,flash,session,send_from_directory
+from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 from forms import RegistrationForm,LoginForm,EmptyForm,UpdateForm
 import os
@@ -9,7 +9,14 @@ conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='A
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
-dict1={'first_name':'Anant'}
+
+def dataret(email):
+    cursor=conn.cursor()
+    cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name='userinfo'")
+    list1 = [a[0] for a in cursor.fetchall()]
+    cursor.execute(f"SELECT * FROM userinfo where email='{email}'")
+    dict1 = dict(zip(tuple(list1), cursor.fetchone()))
+    return dict1
 
 @app.route('/')
 def home():
@@ -19,7 +26,7 @@ def home():
 def register():
     form=RegistrationForm()
     if request.method=='POST':
-        if form.validate():
+        if form.is_submitted():
             cursor=conn.cursor()
             result=request.form.to_dict()
             form.image.data.save(os.path.join(os.getcwd(),'static/media/profile_image',form.data['email'].lower()))
@@ -65,8 +72,7 @@ def login():
             return redirect(url_for('register'))
         else:
             if pbkdf2_sha256.verify(result['password'], a[0]):
-
-                session['email']=result['email']
+                session['email']=result['email'].lower()
                 session['logged-in']=True
                 return redirect(url_for('profile'))
             else:
@@ -78,28 +84,34 @@ def login():
 
 @app.route('/profile',methods=['GET','POST'])
 def profile():
-    cursor=conn.cursor()
     form=EmptyForm()
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
-    cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name='userinfo'")
-    list1=[a[0] for a in cursor.fetchall()]
-    cursor.execute(f"SELECT * FROM userinfo where email='{session['email']}'")
-    global dict1
-    dict1=dict(zip(tuple(list1),cursor.fetchone()))
-    return render_template('profile.html',dp=full_filename,form=form,dict1=dict1)
+    return render_template('profile.html',dp=full_filename,form=form, dict1=dataret(session['email']))
 
-@app.route('/updateprofile>',methods=['GET','POST'])
-def updateprofile(dict1):
+@app.route('/updateprofile',methods=['GET','POST'])
+def updateprofile():
     cursor=conn.cursor()
     form=UpdateForm()
-    form.address.data="12345"
-    form.dob.data="22/11/19"
-    form.first_name.data="rahul"
-    form.last_name.data="garg"
-    form.pincode.data="160036"
-    print(dict1)
+    email=session['email']
+    dict1=dataret(email)
+    if request.method=='POST':
+        if form.validate_on_submit():
+            cursor.execute(f"Select passwordd from userinfo where lower(email)='{email}'")
+            a = cursor.fetchone()
+            if pbkdf2_sha256.verify(form.passwordd.data, a[0]):
+                cursor.execute(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}',passwordd='{pbkdf2_sha256.hash(form.npasswordd.data)}' where email='{email}'")
+                print(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}',passwordd='{pbkdf2_sha256.hash(form.npasswordd.data)}' where email='{email}'")
+                os.remove(os.path.join(os.getcwd(), 'static/media/profile_image', email))
+                form.change_profile_image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', email))
+                conn.commit()
+                cursor.close()
+            else:
+                flash("Wrong Password!","danger")
+                return redirect('updateprofile')
 
-    return render_template('updateprofile.html',form=form)
+        flash("Update Successfull!", "success")
+        return redirect('profile')
+    return render_template('updateprofile.html',form=form,dict1=dict1)
 
 
 if(__name__== '__main__'):
