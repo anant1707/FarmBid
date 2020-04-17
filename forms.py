@@ -36,9 +36,13 @@ class UpdateForm(Form):
    dob = StringField("DOB")
    change_profile_image = FileField(validators=[FileAllowed(['jpg', 'png'], 'images only'), DataRequired()])
    passwordd=PasswordField("Password",validators=[DataRequired(),Length(min=8,max=20)])
-   npasswordd=PasswordField("New Password",validators=[DataRequired(),Length(min=8,max=20)])
-   cnpasswordd=PasswordField("Confirm New Password",validators=[DataRequired(),Length(min=8,max=20),EqualTo('npasswordd')])
+   npasswordd=PasswordField("New Password",validators=[Length(min=8,max=20)])
+   cnpasswordd=PasswordField("Confirm New Password",validators=[Length(min=8,max=20),EqualTo('npasswordd')])
    submit = SubmitField("Update")
+
+
+
+
 
 
 

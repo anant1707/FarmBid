@@ -5,7 +5,7 @@ import os
 from passlib.hash import pbkdf2_sha256
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -105,13 +105,19 @@ def updateprofile():
                 form.change_profile_image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', email))
                 conn.commit()
                 cursor.close()
+                flash("Update Successfull!", "success")
+                return redirect('profile')
             else:
                 flash("Wrong Password!","danger")
                 return redirect('updateprofile')
+    else:
+        form.first_name.data=dict1['first_name']
+        form.last_name.data = dict1['last_name']
+        form.pincode.data=dict1['pincode']
+        form.dob.data=dict1['dob']
+        form.address.data=dict1['address']
 
-        flash("Update Successfull!", "success")
-        return redirect('profile')
-    return render_template('updateprofile.html',form=form,dict1=dict1)
+        return render_template('updateprofile.html',form=form,dict1=dict1)
 
 
 if(__name__== '__main__'):
