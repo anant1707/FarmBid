@@ -1,5 +1,6 @@
 from flask_wtf import Form
-from wtforms import StringField,TextAreaField,BooleanField,IntegerField,DateField,PasswordField,SelectField,SubmitField
+from wtforms import StringField,TextAreaField,PasswordField,SelectField,SubmitField
+from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired,Length,Email,EqualTo
 from flask_wtf.file import FileField,FileAllowed
 
@@ -15,7 +16,7 @@ class RegistrationForm(Form):
    aadhar=StringField("Aadhar Number",validators=[DataRequired(),Length(min=12,max=12)])
    panno=StringField("PAN NO.",validators=[DataRequired(),Length(min=10,max=10)])
    gst=StringField("GST",validators=[DataRequired(),Length(min=10,max=10)])
-   dob=StringField("DOB")
+   dob=DateField("DOB",format='%m-%d-%Y')
    type=SelectField(u'Type',choices=[('1','FARMER'),('2','BUYER')])
    image=FileField(validators=[FileAllowed(['jpg','png'],'images only'),DataRequired()])
    submit=SubmitField("Sign Up")
@@ -34,10 +35,6 @@ class UpdateForm(Form):
    address = TextAreaField("Address Feild", validators=[DataRequired(), Length(max=500)])
    pincode = StringField("Pincode", validators=[DataRequired(), Length(min=6, max=6)])
    dob = StringField("DOB")
-   change_profile_image = FileField(validators=[FileAllowed(['jpg', 'png'], 'images only'), DataRequired()])
-   passwordd=PasswordField("Password",validators=[DataRequired(),Length(min=8,max=20)])
-   npasswordd=PasswordField("New Password",validators=[Length(min=8,max=20)])
-   cnpasswordd=PasswordField("Confirm New Password",validators=[Length(min=8,max=20),EqualTo('npasswordd')])
    submit = SubmitField("Update")
 
 

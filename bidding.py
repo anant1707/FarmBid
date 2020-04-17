@@ -5,7 +5,7 @@ import os
 from passlib.hash import pbkdf2_sha256
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -29,6 +29,7 @@ def register():
         if form.is_submitted():
             cursor=conn.cursor()
             result=request.form.to_dict()
+            result['email']=form.data['email'].lower()
             form.image.data.save(os.path.join(os.getcwd(),'static/media/profile_image',form.data['email'].lower()))
             regdata=[]
             for key,value in result.items():
@@ -94,22 +95,12 @@ def updateprofile():
     form=UpdateForm()
     email=session['email']
     dict1=dataret(email)
-    if request.method=='POST':
-        if form.validate_on_submit():
-            cursor.execute(f"Select passwordd from userinfo where lower(email)='{email}'")
-            a = cursor.fetchone()
-            if pbkdf2_sha256.verify(form.passwordd.data, a[0]):
-                cursor.execute(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}',passwordd='{pbkdf2_sha256.hash(form.npasswordd.data)}' where email='{email}'")
-                print(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}',passwordd='{pbkdf2_sha256.hash(form.npasswordd.data)}' where email='{email}'")
-                os.remove(os.path.join(os.getcwd(), 'static/media/profile_image', email))
-                form.change_profile_image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', email))
-                conn.commit()
-                cursor.close()
-                flash("Update Successfull!", "success")
-                return redirect('profile')
-            else:
-                flash("Wrong Password!","danger")
-                return redirect('updateprofile')
+    if form.is_submitted():
+        cursor.execute(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}' where email='{email}'")
+        conn.commit()
+        cursor.close()
+        flash("Update Successfull!", "success")
+        return redirect('profile')
     else:
         form.first_name.data=dict1['first_name']
         form.last_name.data = dict1['last_name']
@@ -118,7 +109,6 @@ def updateprofile():
         form.address.data=dict1['address']
 
         return render_template('updateprofile.html',form=form,dict1=dict1)
-
 
 if(__name__== '__main__'):
         app.run(debug=True)
