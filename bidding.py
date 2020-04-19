@@ -79,7 +79,10 @@ def login():
                 session['email']=result['email'].lower()
                 session['logged-in']=True
                 session['phone']=dict1['phone']
+                full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
+                session['image']=full_filename
                 return redirect(url_for('profile'))
+
             else:
                 flash("Incorrect Password!","danger")
                 return render_template("login.html",form=form)
