@@ -101,8 +101,8 @@ html, body {
 }
 
 img:hover {
-    -webkit-transform:scale(2); /* or some other value */
-    transform:scale(2);
+    -webkit-transform:scale(1.35); /* or some other value */
+    transform:scale(1.5);
 }
 
 
