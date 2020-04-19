@@ -178,9 +178,11 @@ def changepass():
             oldp=form.oldpassword.data
             dict1=dataret(session['email'])
             if pbkdf2_sha256.verify(oldp,dict1['passwordd']):
-                curson=conn.cursor()
+                cursor=conn.cursor()
                 newpassworda=pbkdf2_sha256.hash(form.password.data)
-                cursor.execute(f" UPDATE  userinfo  set passwordd = '{newpassworda}' where email={session['email']} ")
+                cursor.execute(f" UPDATE  userinfo  set passwordd = '{newpassworda}' where email='{session['email']}' ")
+                conn.commit()
+                flash('Update successfull', 'Success')
                 return redirect(url_for('profile'))
             else:
                 flash('Enter Correct old password', 'danger')
