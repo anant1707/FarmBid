@@ -6,13 +6,14 @@
                 <div class="block-heading">
                     <h2 class="text-info">PROFILE</h2>
                 </div>
-
+                <a href="/updateimg">
                 <div class="media"><img class="mr-3" height="130" width="130" border-radius="50%" src="{{dp}}">
-
+                </a>
                     <div class="media-body">
                         <br>
+                          <br>
 
-                        <h3>{{dict1['first_name']}} {{dict1['last_name']}}</h3>
+                        <h3> &nbsp; &nbsp; &nbsp; &nbsp; {{dict1['first_name']}} {{dict1['last_name']}}</h3>
                     </div>
                 </div>
                     <div class="table-responsive">
@@ -36,6 +37,13 @@
                   return a;
 
                 }
+                $(function ()
+{
+    $('img').on('click', function ()
+    {
+        $(this).width(1000);
+    });
+});
 
               </script>
                 <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary btn-block">Update Profile</button></a>
@@ -43,3 +51,4 @@
         </section>
     </main>
    {%endblock content%}
+
