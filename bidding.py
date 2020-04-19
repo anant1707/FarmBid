@@ -182,7 +182,7 @@ def changepass():
                 newpassworda=pbkdf2_sha256.hash(form.password.data)
                 cursor.execute(f" UPDATE  userinfo  set passwordd = '{newpassworda}' where email='{session['email']}' ")
                 conn.commit()
-                flash('Update successfull', 'Success')
+                flash('Update successfull', 'success')
                 return redirect(url_for('profile'))
             else:
                 flash('Enter Correct old password', 'danger')

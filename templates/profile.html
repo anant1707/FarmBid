@@ -4,6 +4,17 @@
 {%endblock title%}
 {%block content%}
     <main class="page login-page">
+         {% with messages=get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for c,m in messages %}
+            <div class="alert alert-{{c}}" role="alert">
+               <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
+                {{m}}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
         <section class="clean-block clean-form dark">
             <div class="container">
                 <div class="block-heading">
