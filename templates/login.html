@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {%block title%}
-<title>Login</title>
+<title>{{title}}</title>
 {%endblock title%}
 
 {%block content%}
@@ -39,8 +39,9 @@
                     </div>
                     {%endfor%}
                     <br>
-
-                                                <a href="/forgot" style="margin-left:35%;">Forgot Password?</a>
+                    <div class="form-group">
+                        <a href="/forgot"><p style="text-align:center">Forgot Password?</p></a>
+                    </div>
                 </form>
 
             </div>

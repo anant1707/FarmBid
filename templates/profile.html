@@ -1,4 +1,7 @@
 {%extends "base.html"%}
+{%block title%}
+<title>{{title}}</title>
+{%endblock title%}
 {%block content%}
     <main class="page login-page">
         <section class="clean-block clean-form dark">
@@ -42,7 +45,13 @@
 
 
               </script>
-                <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary btn-block">Update Profile</button></a>
+
+            <p style="text-align:center;">
+  <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary">Update Profile</button></a>
+  <a href="{{url_for('changepass')}}" onclick="return confirmation();"><button class="btn btn-primary">Change Password</button></a>
+  <a href="{{url_for('updateimg')}}" onclick="return confirmation();"><button class="btn btn-primary">Change Image</button></a>
+</p>
+
             </div>
         </section>
     </main>

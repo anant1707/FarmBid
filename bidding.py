@@ -1,6 +1,6 @@
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
-from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm
+from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword
 import os
 from passlib.hash import pbkdf2_sha256
 import sms
@@ -117,10 +117,22 @@ def updateprofile():
 
         return render_template('updateprofile.html',form=form,dict1=dict1)
 
+@app.route('/updateimg', methods=['GET', 'POST'])
+def updateimg():
+    form=ImgForm()
+    if request.method == 'POST':
+        if form.is_submitted():
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], session['email']))
+            form.image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', session['email']))
+            return redirect(url_for('profile'))
+
+    else:
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
+        return render_template('updateimg.html',form=form,dp=full_filename)
+
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
     form=ForgotForm()
-
     cur = conn.cursor()
     if request.method == 'POST':
         phone=form.data['phone']
@@ -142,19 +154,14 @@ def forgot():
 
     return render_template('forgot.html',form=form)
 
-
 @app.route('/reset', methods=['GET', 'POST'])
 def resetpass():
     cur = conn.cursor()
     form= ResetForm()
-
     nme=request.args.get('nme')
     print(nme)
     if request.method == 'POST':
-
         ootp = form.data['otp']
-
-
         if ootp == session['otp']:
             return redirect(url_for('newpass'))
         else:
@@ -163,13 +170,17 @@ def resetpass():
 
     return render_template('verifyotp.html',form=form)
 
+@app.route('/changepass',methods=['GET','POST'])
+def changepass():
+    form=ChangePassword()
+    return render_template('newpass.html',form=form,title="Change Password")
+
 
 @app.route('/newpass', methods=['GET', 'POST'])
 def newpass():
     form=NewPassForm()
     cur = conn.cursor()
     if request.method == 'POST':
-
         newpassword = form.data['password']
         confirmnewpassword = form.data['cpassword']
 
@@ -186,7 +197,6 @@ def newpass():
             return redirect(url_for('newpass'))
     return render_template('newpass.html', form=form)
 
-
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.pop('email', None)
@@ -195,19 +205,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/updateimg', methods=['GET', 'POST'])
-def updateimg():
-    form=ImgForm()
-    if request.method == 'POST':
-        if form.is_submitted():
-            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], session['email']))
-            form.image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', session['email']))
-            return redirect(url_for('profile'))
-
-    else:
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
-        return render_template('updateimg.html',form=form,dp=full_filename)
-
 
 if(__name__== '__main__'):
-        app.run('172.20.10.9',debug=True)
+        app.run(debug=True)
