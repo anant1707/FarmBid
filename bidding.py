@@ -150,7 +150,7 @@ def forgot():
 def resetpass():
     cur = conn.cursor()
     form= ResetForm()
-    dict1=dataret(session['email'])
+
     nme=request.args.get('nme')
     print(nme)
     if request.method == 'POST':
@@ -188,6 +188,14 @@ def newpass():
             flash("passwords didnt match", 'danger')
             return redirect(url_for('newpass'))
     return render_template('newpass.html', form=form)
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session.pop('email', None)
+    session.pop('logged-in', False)
+    session.pop('phone', None)
+    return redirect(url_for('login'))
 
 
 if(__name__== '__main__'):
