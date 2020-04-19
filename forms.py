@@ -37,8 +37,22 @@ class UpdateForm(Form):
    dob = StringField("DOB")
    submit = SubmitField("Update")
 
+class ForgotForm(Form):
+   phone = StringField("Enter Registered Phone Number", validators=[DataRequired()])
+   submit = SubmitField("Request Otp")
 
 
+class ResetForm(Form):
+   otp = StringField("ENTER OTP", validators=[DataRequired()])
+   submit = SubmitField("SUBMIT")
+
+class NewPassForm(Form):
+   password = PasswordField("Enter New Password", validators=[DataRequired(), Length(min=8, max=20)])
+   cpassword = PasswordField("Confirm New Password", validators=[DataRequired(), Length(min=8, max=20)])
+   cpassword = PasswordField("Confirm Password",
+                             validators=[DataRequired(), Length(min=8, max=20), EqualTo('password')])
+
+   submit = SubmitField("UPDATE")
 
 
 

@@ -1,11 +1,14 @@
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
-from forms import RegistrationForm,LoginForm,EmptyForm,UpdateForm
+from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm
 import os
 from passlib.hash import pbkdf2_sha256
+import sms
+import random
+from datetime import date
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -65,7 +68,7 @@ def login():
     if(request.method == 'POST'):
         cursor=conn.cursor()
         result=form.data
-        print(result)
+        dict1=dataret(result['email'].lower())
         cursor.execute(f"Select passwordd from userinfo where lower(email)='{result['email'].lower()}'")
         a=cursor.fetchone()
         if a is None:
@@ -75,6 +78,7 @@ def login():
             if pbkdf2_sha256.verify(result['password'], a[0]):
                 session['email']=result['email'].lower()
                 session['logged-in']=True
+                session['phone']=dict1['phone']
                 return redirect(url_for('profile'))
             else:
                 flash("Incorrect Password!","danger")
@@ -109,6 +113,82 @@ def updateprofile():
         form.address.data=dict1['address']
 
         return render_template('updateprofile.html',form=form,dict1=dict1)
+
+
+
+
+
+
+@app.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    form=ForgotForm()
+
+    cur = conn.cursor()
+    if request.method == 'POST':
+        phone=form.data['phone']
+
+        cur.execute(f"select email from userinfo where phone = '{phone}' ")
+        a=cur.fetchone()
+        if(a == None):
+            flash("You are not registered!!,REGISTER NOW", 'danger')
+            return redirect(url_for('register'))
+        else:
+            session['email']=a[0]
+            session['phone']=phone
+            otp1 = str(random.randrange(100000, 999999))
+            URL = 'https://www.way2sms.com/api/v1/sendCampaign'
+            session['otp']=otp1
+            print(otp1)
+            nme='rahul'
+            # sms.sendPostRequest(URL, 'C23FTIDPYUYZVP7UV238S0QC1POBFWMR', 'N1AY9Q2S52NHUADE', 'stage', phone, '9781396442', f"Your OTP (One Time Password) to change your password is: {otp1} Do not share this with anyone!   Team college+")
+            return redirect(url_for('resetpass',nme=nme))
+
+    return render_template('forgot.html',form=form)
+
+
+@app.route('/reset', methods=['GET', 'POST'])
+def resetpass():
+    cur = conn.cursor()
+    form= ResetForm()
+    dict1=dataret(session['email'])
+    nme=request.args.get('nme')
+    print(nme)
+    if request.method == 'POST':
+
+        ootp = form.data['otp']
+
+
+        if ootp == session['otp']:
+            return redirect(url_for('newpass'))
+        else:
+            flash('INVALID OTP', 'danger')
+            return redirect(url_for('resetpass'))
+
+    return render_template('verifyotp.html',form=form)
+
+
+@app.route('/newpass', methods=['GET', 'POST'])
+def newpass():
+    form=NewPassForm()
+    cur = conn.cursor()
+    if request.method == 'POST':
+
+        newpassword = form.data['password']
+        confirmnewpassword = form.data['cpassword']
+
+        if (newpassword == confirmnewpassword):
+            newpassworda = pbkdf2_sha256.hash(newpassword)
+            phonenumber2=session['phone']
+            cur.execute(
+                f" UPDATE  userinfo  set passwordd = '{newpassworda}' where phone =  '{phonenumber2}' ")
+            conn.commit()
+            session['logged-in']=True
+            return redirect(url_for('profile'))
+        else:
+            flash("passwords didnt match", 'danger')
+            return redirect(url_for('newpass'))
+    return render_template('newpass.html', form=form)
+
 
 if(__name__== '__main__'):
         app.run(debug=True)
