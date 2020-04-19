@@ -1,6 +1,6 @@
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
-from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm
+from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm
 import os
 from passlib.hash import pbkdf2_sha256
 import sms
@@ -196,6 +196,17 @@ def logout():
     session.pop('logged-in', False)
     session.pop('phone', None)
     return redirect(url_for('login'))
+
+
+@app.route('/updateimg', methods=['GET', 'POST'])
+def updateimg():
+    form=ImgForm()
+    if request.method == 'POST':
+        pass
+
+    else:
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
+        return render_template('updateimg.html',form=form,dp=full_filename)
 
 
 if(__name__== '__main__'):

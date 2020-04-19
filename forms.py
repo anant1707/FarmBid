@@ -57,3 +57,7 @@ class NewPassForm(Form):
 
 
 
+class ImgForm(Form):
+   image = FileField("UPDATE IMAGE",validators=[FileAllowed(['jpg', 'png'], 'images only'), DataRequired()])
+   submit = SubmitField("UPDATE IMAGE")
+

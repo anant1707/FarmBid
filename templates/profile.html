@@ -7,8 +7,9 @@
                     <h2 class="text-info">PROFILE</h2>
                 </div>
                 <a href="/updateimg">
-                <div class="media"><img class="mr-3" height="130" width="130" border-radius="50%" src="{{dp}}">
+                <div class="media"><img  class="mr-3" height="130" width="130" border-radius="50%" src="{{dp}}">
                 </a>
+
                     <div class="media-body">
                         <br>
                           <br>
@@ -37,13 +38,7 @@
                   return a;
 
                 }
-                $(function ()
-{
-    $('img').on('click', function ()
-    {
-        $(this).width(1000);
-    });
-});
+
 
               </script>
                 <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary btn-block">Update Profile</button></a>
