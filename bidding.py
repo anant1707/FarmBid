@@ -137,20 +137,15 @@ def forgot():
     if request.method == 'POST':
         phone=form.data['phone']
         cur.execute(f"select email from userinfo where phone = '{phone}' ")
+
         a=cur.fetchone()
         if(a == None):
             flash("You are not registered!!,REGISTER NOW", 'danger')
             return redirect(url_for('register'))
         else:
-            session['email']=a[0]
-            session['phone']=phone
-            otp1 = str(random.randrange(100000, 999999))
-            URL ='https://www.way2sms.com/api/v1/sendCampaign'
-            session['otp']=otp1
-            print(otp1)
-            nme='rahul'
-            #sms.sendPostRequest(URL, 'C23FTIDPYUYZVP7UV238S0QC1POBFWMR', 'N1AY9Q2S52NHUADE', 'stage', phone, '9781396442', f"Your OTP (One Time Password) to change your password is: {otp1} Do not share this with anyone!   Team college+")
-            return redirect(url_for('resetpass',nme=nme))
+            session['email'] = a[0]
+            session['phone'] = phone
+            return redirect(url_for('resetpass'))
 
     return render_template('forgot.html',form=form)
 
@@ -158,16 +153,25 @@ def forgot():
 def resetpass():
     cur = conn.cursor()
     form= ResetForm()
-    nme=request.args.get('nme')
-    print(nme)
+
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
+            if(session['logged-in']):
+                session.pop('logged-in', False)
             return redirect(url_for('newpass'))
         else:
+
             flash('INVALID OTP', 'danger')
             return redirect(url_for('resetpass'))
 
+
+    otp1 = str(random.randrange(100000, 999999))
+    print(otp1)
+    URL = 'https://www.way2sms.com/api/v1/sendCampaign'
+    session['otp']=otp1
+
+    # sms.sendPostRequest(URL, 'C23FTIDPYUYZVP7UV238S0QC1POBFWMR', 'N1AY9Q2S52NHUADE', 'stage', phone, '9781396442', f"Your OTP (One Time Password) to change your password is: {otp1} Do not share this with anyone!   Team college+")
     return render_template('verifyotp.html',form=form)
 
 @app.route('/changepass',methods=['GET','POST'])
