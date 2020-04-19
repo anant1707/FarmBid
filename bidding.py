@@ -205,7 +205,10 @@ def logout():
 def updateimg():
     form=ImgForm()
     if request.method == 'POST':
-        pass
+        if form.is_submitted():
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], session['email']))
+            form.image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', session['email']))
+            return redirect(url_for('profile'))
 
     else:
         full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
