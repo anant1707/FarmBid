@@ -145,6 +145,7 @@ def forgot():
         else:
             session['email'] = a[0]
             session['phone'] = phone
+            session['logged-in']=False
             return redirect(url_for('resetpass'))
 
     return render_template('forgot.html',form=form)
@@ -157,7 +158,7 @@ def resetpass():
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
-            if(session['logged-in']):
+            if(session['logged-in']==True):
                 session.pop('logged-in', False)
             return redirect(url_for('newpass'))
         else:
