@@ -8,7 +8,7 @@ import random
 from datetime import date
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -173,6 +173,19 @@ def resetpass():
 @app.route('/changepass',methods=['GET','POST'])
 def changepass():
     form=ChangePassword()
+    if request.method=='POST':
+        if form.is_submitted():
+            oldp=form.oldpassword.data
+            dict1=dataret(session['email'])
+            if pbkdf2_sha256.verify(oldp,dict1['passwordd']):
+                curson=conn.cursor()
+                newpassworda=pbkdf2_sha256.hash(form.password.data)
+                cursor.execute(f" UPDATE  userinfo  set passwordd = '{newpassworda}' where email={session['email']} ")
+                return redirect(url_for('profile'))
+            else:
+                flash('Enter Correct old password', 'danger')
+                return redirect(url_for('changepass'))
+
     return render_template('newpass.html',form=form,title="Change Password")
 
 
