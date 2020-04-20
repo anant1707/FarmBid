@@ -8,7 +8,8 @@ import random
 from datetime import date
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -154,7 +155,6 @@ def forgot():
 def resetpass():
     cur = conn.cursor()
     form= ResetForm()
-
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
