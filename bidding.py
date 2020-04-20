@@ -226,6 +226,6 @@ def logout():
 
 
 if(__name__== '__main__'):
-        app.run('192.168.43.106',debug=True)
+        app.run(debug=True)
 
 
