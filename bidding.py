@@ -158,8 +158,7 @@ def resetpass():
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
-            if(session['logged-in']==True):
-                session.pop('logged-in', False)
+
             return redirect(url_for('newpass'))
         else:
 
@@ -206,9 +205,9 @@ def newpass():
 
         if (newpassword == confirmnewpassword):
             newpassworda = pbkdf2_sha256.hash(newpassword)
-            phonenumber2=session['phone']
+
             cur.execute(
-                f" UPDATE  userinfo  set passwordd = '{newpassworda}' where phone =  '{phonenumber2}' ")
+                f" UPDATE  userinfo  set passwordd = '{newpassworda}' where email =  '{session['email']}' ")
             conn.commit()
             session['logged-in']=True
             return redirect(url_for('profile'))
@@ -227,4 +226,6 @@ def logout():
 
 
 if(__name__== '__main__'):
-        app.run(debug=True)
+        app.run('192.168.43.106',debug=True)
+
+
