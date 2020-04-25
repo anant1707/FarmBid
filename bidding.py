@@ -8,8 +8,8 @@ import random
 from datetime import date
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -170,8 +170,10 @@ def resetpass():
     print(otp1)
     URL = 'https://www.way2sms.com/api/v1/sendCampaign'
     session['otp']=otp1
+    phone=session['phone']
 
-    # sms.sendPostRequest(URL, 'C23FTIDPYUYZVP7UV238S0QC1POBFWMR', 'N1AY9Q2S52NHUADE', 'stage', phone, '9781396442', f"Your OTP (One Time Password) to change your password is: {otp1} Do not share this with anyone!   Team college+")
+    # resp=sms.sendPostRequest(URL, 'C23FTIDPYUYZVP7UV238S0QC1POBFWMR', 'N1AY9Q2S52NHUADE', 'stage', phone, '9781396442', f"Your OTP (One Time Password) to change your password is: {otp1} Do not share this with anyone!   Team college+")
+    #print(resp.text)
     return render_template('verifyotp.html',form=form)
 
 @app.route('/changepass',methods=['GET','POST'])
