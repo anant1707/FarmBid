@@ -1,3 +1,5 @@
-import pickle
-df=pickle.load(open('dataset/dataset.sav','rb'))
-print(df['State'].unique())]
+
+import numpy as np
+import predictor
+
+print(predictor.pred()))
