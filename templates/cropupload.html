@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{%block title%}
+<title>{{title}}</title>
+{%endblock title%}
+
+{%block content%}
+<main class="page registeration-page">
+    {% with messages=get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for c,m in messages %}
+            <div class="alert alert-{{c}}" role="alert">
+               <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
+                {{m}}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">Register</h2>
+                    <p>Register Here!</p>
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                    {% for field in form%}
+                    <div class="form-group">
+                        {%if field.type=="SubmitField"%}
+                        {{field(class_="btn btn-primary btn-block")}}
+                        {%else%}
+                        {%if field.label.text!="CSRF Token"%}
+                        {{field.label}} {{field(class_="form-control")}}
+                        {%endif%}
+                        {%endif%}
+                    </div>
+                    {%endfor%}
+                </form>
+            </div>
+            </div>
+        </section>
+    </main>
+{%endblock content%}

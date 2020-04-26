@@ -20,9 +20,12 @@
                 id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
                     {% if session['logged-in'] %}
+                    {% if session['username'][0]=='F' %}
+                     <li class="nav-item" role="presentation"><a class="nav-link" href="/upload">UPLOAD</a></li>
 
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/profile">&nbsp; &nbsp; &nbsp; &nbsp; Profile</a></li>
+                    {% endif %}
+
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/profile">Profile</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/logout">Logout</a></li>
 
                     {% else %}

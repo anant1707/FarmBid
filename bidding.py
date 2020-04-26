@@ -1,13 +1,21 @@
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
+import pandas as pd
+import numpy as np
 from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword
 import os
+from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
 import sms
 import random
 from datetime import date
 import pickle
 import numpy as np
+from flask_wtf import Form
+from wtforms import StringField,TextAreaField,PasswordField,SelectField,SubmitField
+from wtforms.fields.html5 import DateField
+from wtforms.validators import DataRequired,Length,Email,EqualTo
+
 
 sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
 sc_y = pickle.load(open('model/sc_y.sav', 'rb'))
@@ -106,6 +114,7 @@ def login():
                 session['phone']=dict1['phone']
                 full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
                 session['image']=full_filename
+                session['username']=dict1['username']
                 return redirect(url_for('profile'))
 
             else:
@@ -259,9 +268,45 @@ def logout():
     session.pop('email', None)
     session.pop('logged-in', False)
     session.pop('phone', None)
+    session.pop('username', None)
     return redirect(url_for('login'))
 
 
+@app.route('/upload',methods=['GET','POST'])
+def upload():
+    Y=pd.read_excel('FINAL1.xls')
 
+    X=pd.read_csv('pincode.csv')
+
+    X['statename']=X['statename'].str.lower()
+
+    Y['State']=Y['State'].str.lower()
+    dict1=dataret(session['email'])
+    #pincode=dict1['pincode']
+    pincode='140103'
+
+    state=X['statename'].where(X['pincode']==pincode).unique()
+
+    print(state[1])
+    crops=Y['Crop'].where(Y['State']==state[1]).unique()
+    crops=list(crops)
+    crops.pop(0)
+
+    print(crops)
+    li=[]
+    i=1
+    for a in crops:
+       li.append((i,a))
+       i+=1
+
+    print(li)
+    class CropUploadForm(Form):
+        image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
+        croptype=SelectField('CROP TYPE', coerce=int)
+        submit = SubmitField("VIEW BASE PRICE")
+
+    form=CropUploadForm()
+    form.croptype.choices = li
+    return render_template('cropupload.html',form=form)
 if(__name__== '__main__'):
         app.run(debug=True)
