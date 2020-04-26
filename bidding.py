@@ -4,7 +4,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm
+from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -276,7 +276,7 @@ def upload():
         if form.is_submitted():
             d1=dict(session['list'])
             croptype=d1[form.croptype.data]
-            #session.pop('list',None)
+            session.pop('list',None)
             print(croptype)
             from datetime import date
             year_ = date.today().year
@@ -284,7 +284,7 @@ def upload():
             state=session['state']
             state=str(state)
             state=state.capitalize()
-            #session.pop('state',None)
+            session.pop('state',None)
             X=np.array([year_,croptype,state]).reshape(1,-1)
             print(type(croptype))
             print(type(state))
@@ -318,6 +318,34 @@ def upload():
     form.croptype.choices = li
 
     return render_template('cropupload.html',form=form)
+
+
+@app.route('/addcrop',methods=['GET','POST'])
+def addcrop():
+
+    form=AddCropForm()
+    if request.method=="POST":
+        if form.is_submitted():
+            d1 = dict(session['list'])
+            state = d1[form.state.data]
+            state=str(state)
+
+            return redirect(url_for('profile'))
+
+    session.pop('list', None)
+    Y = pd.read_excel('FINAL1.xls')
+    state=Y['State'].unique()
+    state=list(state)
+    state.pop(0)
+    li = []
+    i = 1
+
+    for a in state:
+        li.append((i, a))
+        i += 1
+    session['list'] = li
+    form.state.choices=li
+    return render_template('addcrop.html',form=form)
 
 
 if(__name__== '__main__'):

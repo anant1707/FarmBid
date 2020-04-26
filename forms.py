@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField,TextAreaField,PasswordField,SelectField,SubmitField
+from wtforms import StringField,TextAreaField,PasswordField,SelectField,SubmitField,IntegerField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired,Length,Email,EqualTo
 from flask_wtf.file import FileField,FileAllowed
@@ -67,3 +67,11 @@ class CropUploadForm(Form):
    image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
    croptype = SelectField('CROP TYPE', coerce=int)
    submit = SubmitField("VIEW BASE PRICE")
+
+
+class AddCropForm(Form):
+   image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
+   croptype = StringField("Crop Name", validators=[DataRequired(), Length(min=2, max=30)])
+   state    = SelectField('State', coerce=int)
+   bprice= IntegerField("Set Base Price",validators=[DataRequired()])
+   submit = SubmitField("Add Crop")
