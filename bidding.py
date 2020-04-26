@@ -6,10 +6,30 @@ from passlib.hash import pbkdf2_sha256
 import sms
 import random
 from datetime import date
+import pickle
+import numpy as np
+
+sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
+sc_y = pickle.load(open('model/sc_y.sav', 'rb'))
+lab1 = pickle.load(open('model/labenc.pkl', 'rb'))
+lab2 = pickle.load(open('model/labenc1.pkl', 'rb'))
+enco = pickle.load(open('model/onehot.pkl', 'rb'))
+model =pickle.load(open('model/finalmodel.sav', 'rb'))
+
+def pred(X):
+    X[:,1]=lab1.transform(X[:,1])
+    X[:,2] =lab2.transform(X[:,2])
+    X=enco.transform(X).toarray()
+    X=np.delete(X,26,axis=1)
+    X=np.delete(X,0,axis=1)
+    X=sc_X.transform(X)
+    Y=model.predict(X)
+    Y=sc_y.inverse_transform(Y)
+    return Y
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -24,6 +44,7 @@ def dataret(email):
 
 @app.route('/')
 def home():
+    print(pred(np.array([2019, 'Paddy', 'Punjab']).reshape(1, -1)))
     return redirect(url_for('login'))
 
 @app.route('/register',methods=['GET','POST'])
@@ -69,13 +90,13 @@ def login():
     if(request.method == 'POST'):
         cursor=conn.cursor()
         result=form.data
-        dict1=dataret(result['email'].lower())
         cursor.execute(f"Select passwordd from userinfo where lower(email)='{result['email'].lower()}'")
         a=cursor.fetchone()
         if a is None:
             flash(f"NO ACCOUNT EXISTS WITH THIS USERNAME",'danger')
             return redirect(url_for('register'))
         else:
+            dict1 = dataret(result['email'].lower())
             if pbkdf2_sha256.verify(result['password'], a[0]):
                 session['email']=result['email'].lower()
                 session['logged-in']=True
