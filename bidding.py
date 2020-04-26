@@ -1,8 +1,10 @@
+from builtins import str
+
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword
+from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -11,10 +13,6 @@ import random
 from datetime import date
 import pickle
 import numpy as np
-from flask_wtf import Form
-from wtforms import StringField,TextAreaField,PasswordField,SelectField,SubmitField
-from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired,Length,Email,EqualTo
 
 
 sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
@@ -84,8 +82,8 @@ def register():
                 return redirect(url_for('login'))
             else:
 
-                cursor.close()
-                session['logged-in']='reg'
+
+                session['log-in']='reg'
                 session['data']=regdata
                 session['phone']=result['phone']
                 flash("Verify Otp!","info")
@@ -186,17 +184,15 @@ def forgot():
 
 @app.route('/reset', methods=['GET', 'POST'])
 def resetpass():
-    cur = conn.cursor()
+
     form= ResetForm()
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
-            if(session['logged-in']=='reg'):
-                regdata=session['data']
-                cursor=conn.cursor()
-                cursor.execute(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
+            if(session['log-in']=='reg'):
+
                 conn.commit()
-                session.pop('logged-in', False)
+                session.pop('log-in', None)
                 session.pop('phone', None)
                 session.pop('data',None)
                 return redirect(url_for('login'))
@@ -274,39 +270,52 @@ def logout():
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
+
+    form = CropUploadForm()
+    if request.method=='POST':
+        if form.is_submitted():
+            d1=dict(session['list'])
+            croptype=d1[form.croptype.data]
+            session.pop('list',None)
+            print(croptype)
+            from datetime import date
+            year_ = date.today().year
+            year_=str(year_)
+            state=session['state']
+            state=str(state)
+            state=state.capitalize()
+            session.pop('state',None)
+            X=np.array([year_,croptype,state]).reshape(1,-1)
+            print(type(croptype))
+            print(type(state))
+            value=pred(X)
+            print(value)
+            return redirect(url_for('profile'))
+
     Y=pd.read_excel('FINAL1.xls')
-
     X=pd.read_csv('pincode.csv')
-
     X['statename']=X['statename'].str.lower()
-
     Y['State']=Y['State'].str.lower()
     dict1=dataret(session['email'])
-    #pincode=dict1['pincode']
-    pincode='140103'
-
+    pincode=dict1['pincode']
+    pincode=str(pincode)
     state=X['statename'].where(X['pincode']==pincode).unique()
-
     print(state[1])
+    session['state']=state[1]
     crops=Y['Crop'].where(Y['State']==state[1]).unique()
     crops=list(crops)
     crops.pop(0)
-
     print(crops)
     li=[]
     i=1
-    for a in crops:
-       li.append((i,a))
-       i+=1
+    if(len(crops)!=0):
+        for a in crops:
+           li.append((i,a))
+           i+=1
+    session['list']=li
 
-    print(li)
-    class CropUploadForm(Form):
-        image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
-        croptype=SelectField('CROP TYPE', coerce=int)
-        submit = SubmitField("VIEW BASE PRICE")
-
-    form=CropUploadForm()
     form.croptype.choices = li
+
     return render_template('cropupload.html',form=form)
 if(__name__== '__main__'):
         app.run(debug=True)

@@ -62,3 +62,8 @@ class ImgForm(Form):
    image = FileField("UPDATE IMAGE",validators=[FileAllowed(['jpg', 'png'], 'images only'), DataRequired()])
    submit = SubmitField("UPDATE IMAGE")
 
+
+class CropUploadForm(Form):
+   image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
+   croptype = SelectField('CROP TYPE', coerce=int)
+   submit = SubmitField("VIEW BASE PRICE")
