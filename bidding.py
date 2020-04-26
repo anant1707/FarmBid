@@ -276,7 +276,7 @@ def upload():
         if form.is_submitted():
             d1=dict(session['list'])
             croptype=d1[form.croptype.data]
-            session.pop('list',None)
+            #session.pop('list',None)
             print(croptype)
             from datetime import date
             year_ = date.today().year
@@ -284,13 +284,14 @@ def upload():
             state=session['state']
             state=str(state)
             state=state.capitalize()
-            session.pop('state',None)
+            #session.pop('state',None)
             X=np.array([year_,croptype,state]).reshape(1,-1)
             print(type(croptype))
             print(type(state))
             value=pred(X)
             print(value)
-            return redirect(url_for('profile'))
+            form=EmptyForm()
+            return render_template('basebid.html',value=value,form=form)
 
     Y=pd.read_excel('FINAL1.xls')
     X=pd.read_csv('pincode.csv')
@@ -317,5 +318,7 @@ def upload():
     form.croptype.choices = li
 
     return render_template('cropupload.html',form=form)
+
+
 if(__name__== '__main__'):
         app.run(debug=True)

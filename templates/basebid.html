@@ -1,0 +1,56 @@
+{%extends "base.html"%}
+{%block title%}
+<title>{{title}}</title>
+{%endblock title%}
+{%block content%}
+    <main class="page login-page">
+         {% with messages=get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for c,m in messages %}
+            <div class="alert alert-{{c}}" role="alert">
+               <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
+                {{m}}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">Price Predictor</h2>
+                </div>
+
+
+                    <div class="media-body">
+
+                        <h2 style="text-align:center;">THE BASE PRICE FOR YOUR CROP IS: </h2>
+                        <br>
+                        <h3 style="text-align:center;">{{value[0]}}</h3>
+                        <br>
+                        <br>
+                    </div>
+                </div>
+                 <script type="text/javascript">
+                function confirmation()
+                {
+                  var a=confirm("Are you sure you want to decline this base bid ?")
+                  return a;
+
+                }
+
+
+
+              </script>
+
+            <p style="text-align:center;">
+  <a href="{{url_for('profile')}}" ><button class="btn btn-primary">ACCEPT BASE PRICE</button></a>
+&nbsp;  <a href="{{url_for('profile')}}" onclick="return confirmation();"><button class="btn btn-primary">DECLINE </button></a>
+  &nbsp;
+</p>
+
+            </div>
+        </section>
+    </main>
+   {%endblock content%}
+
