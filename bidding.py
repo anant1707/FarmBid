@@ -54,10 +54,15 @@ def register():
                 flash(f"User Already exists","danger")
                 return redirect(url_for('login'))
             else:
-                conn.commit()
                 cursor.close()
-                flash("Registration Successful!","success")
-                return redirect(url_for('login'))
+                session['phone']=result['phone']
+                session['email']=result['email']
+                session['logged-in']='reg'
+                session['data']=regdata
+
+                flash("Verify Mobile Number!","info")
+
+                return redirect(url_for('resetpass'))
         else:
             return render_template('register.html',form=form)
     else:
@@ -69,13 +74,14 @@ def login():
     if(request.method == 'POST'):
         cursor=conn.cursor()
         result=form.data
-        dict1=dataret(result['email'].lower())
+
         cursor.execute(f"Select passwordd from userinfo where lower(email)='{result['email'].lower()}'")
         a=cursor.fetchone()
         if a is None:
             flash(f"NO ACCOUNT EXISTS WITH THIS USERNAME",'danger')
             return redirect(url_for('register'))
         else:
+            dict1 = dataret(result['email'].lower())
             if pbkdf2_sha256.verify(result['password'], a[0]):
                 session['email']=result['email'].lower()
                 session['logged-in']=True
@@ -153,11 +159,27 @@ def forgot():
 
 @app.route('/reset', methods=['GET', 'POST'])
 def resetpass():
-    cur = conn.cursor()
+
     form= ResetForm()
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
+            if session['logged-in']=='reg':
+               regdata=session['data']
+               cursor=conn.cursor()
+               cursor.execute(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
+               conn.commit()
+               session.pop('email', None)
+               session.pop('logged-in', False)
+               session.pop('phone', None)
+               session.pop('data', None)
+
+               flash('Registration successfull','success')
+
+               return redirect(url_for('login'))
+
+
+
 
             return redirect(url_for('newpass'))
         else:
