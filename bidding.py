@@ -114,6 +114,7 @@ def login():
                 session['phone']=dict1['phone']
                 session['list']=None
                 session['state']=None
+                session['up']=1
 
 
                 session['username']=dict1['username']
@@ -128,6 +129,7 @@ def login():
 
 @app.route('/profile',methods=['GET','POST'])
 def profile():
+    session['up']=1
     form=EmptyForm()
     session.pop('value',None)
     session.pop('crop',None)
@@ -136,6 +138,7 @@ def profile():
 
 @app.route('/updateprofile',methods=['GET','POST'])
 def updateprofile():
+    session['up']=0
     cursor=conn.cursor()
     form=UpdateForm()
     email=session['email']
@@ -160,6 +163,7 @@ def updateprofile():
 
 @app.route('/updateimg', methods=['GET', 'POST'])
 def updateimg():
+    session['up'] = 0
     form=ImgForm()
     if request.method == 'POST':
         if form.is_submitted():
@@ -173,6 +177,7 @@ def updateimg():
 
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
+    session['up'] = 0
     form=ForgotForm()
     cur = conn.cursor()
     if request.method == 'POST':
@@ -194,6 +199,7 @@ def forgot():
 @app.route('/reset', methods=['GET', 'POST'])
 def resetpass():
 
+    session['up']=0
     form= ResetForm()
     if request.method == 'POST':
         ootp = form.data['otp']
@@ -228,6 +234,7 @@ def resetpass():
 
 @app.route('/changepass',methods=['GET','POST'])
 def changepass():
+    session['up'] = 0
     form=ChangePassword()
     if request.method=='POST':
         if form.is_submitted():
@@ -249,6 +256,7 @@ def changepass():
 
 @app.route('/newpass', methods=['GET', 'POST'])
 def newpass():
+    session['up'] = 0
     form=NewPassForm()
     cur = conn.cursor()
     if request.method == 'POST':
@@ -278,12 +286,13 @@ def logout():
     session.pop('list', None)
     session.pop('value',None)
     session.pop('crop',None)
+    session.pop('up', None)
     return redirect(url_for('login'))
 
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
-
+    session['up'] = 0
     form = CropUploadForm()
     if request.method=='POST':
         if form.is_submitted():
@@ -338,7 +347,7 @@ def upload():
 
 @app.route('/addcrop',methods=['GET','POST'])
 def addcrop():
-
+    session['up'] = 0
     form=AddCropForm()
     if request.method=="POST":
         if form.is_submitted():
@@ -375,6 +384,7 @@ def addcrop():
 
 @app.route('/changebp',methods=['GET','POST'])
 def changebp():
+    session['up'] = 0
     form=basepriceForm()
     if request.method=='POST':
         if form.validate_on_submit():
@@ -399,6 +409,7 @@ def changebp():
 
 @app.route('/newcrop',methods=['GET','POST'])
 def newcrop():
+    session['up'] = 1
     form=EmptyForm()
     cursor=conn.cursor()
 
@@ -426,6 +437,7 @@ def newcrop():
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
+    session['up'] = 1
     cursor=conn.cursor()
     us=str(session['username'])
     cursor.execute(f"select cropid from cropinfo where owned='{us}'")

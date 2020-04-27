@@ -20,7 +20,7 @@
                 id="navcol-1">
                 <ul class="nav navbar-nav ml-auto">
                     {% if session['logged-in'] %}
-                    {% if session['username'][0]=='F' %}
+                    {% if session['username'][0]=='F' and session['up']==1 %}
                      <li class="nav-item" role="presentation"><a class="nav-link" href="/upload">UPLOAD</a></li>
 
                     {% endif %}
