@@ -356,8 +356,11 @@ def addcrop():
                         break
 
             print(danger)
+            if(danger==1):
+                flash('This Crop is already listed for your state','danger')
+                return redirect(url_for('upload'))
 
-
+            flash('Crop listing successfull','success')
             return redirect(url_for('profile'))
 
     form.state.choices=[(1,session['state'])]
