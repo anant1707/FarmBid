@@ -407,19 +407,30 @@ def newcrop():
     baseprice=str(baseprice)
     crop=str(crop)
     crop=crop.title()
-    print(baseprice,crop)
+
     cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice) VALUES('{session['username']}','{crop}','{baseprice}');")
     conn.commit()
+    cursor.close()
+    cursor = conn.cursor()
+
+    us = str(session['username'])
+    cursor.execute(f"select cropid from cropinfo where owned='{us}' AND crop='{crop}' AND baseprice='{baseprice}' ")
+    a = cursor.fetchone()
+    a=a[0]
     session.pop('crop',None)
 
     session.pop('value',None)
 
 
-    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice)
-"""
+    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,a=a)
+
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
-"""
+    cursor=conn.cursor()
+    us=str(session['username'])
+    cursor.execute(f"select cropid from cropinfo where owned='{us}'")
+    a=cursor.fetchall()
+    print(a)
 
 
 if(__name__== '__main__'):
