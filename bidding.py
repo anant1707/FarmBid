@@ -58,6 +58,7 @@ def home():
 @app.route('/register',methods=['GET','POST'])
 def register():
     session.pop('logged-in',False)
+    session.pop('phone', False)
     form=RegistrationForm()
     if request.method=='POST':
         if form.is_submitted():
@@ -99,6 +100,7 @@ def register():
 @app.route('/login',methods=['GET','POST'])
 def login():
     session.pop('logged-in',False)
+    session.pop('phone',False)
     form=LoginForm()
     if(request.method == 'POST'):
         cursor=conn.cursor()
@@ -194,7 +196,7 @@ def updateimg():
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
     session.pop('logged-in', False)
-
+    session.pop('phone', False)
     session['up'] = 0
     form=ForgotForm()
     cur = conn.cursor()
@@ -203,6 +205,7 @@ def forgot():
         cur.execute(f"select email from userinfo where phone = '{phone}' ")
 
         a=cur.fetchone()
+
         if(a == None):
             flash("You are not registered!!,REGISTER NOW", 'danger')
             return redirect(url_for('register'))
@@ -210,19 +213,23 @@ def forgot():
             session['email'] = a[0]
             session['phone'] = phone
             session['logged-in']=False
+            dict1=dataret(f'{a[0]}')
+            session['username']=dict1['username']
             return redirect(url_for('resetpass'))
 
     return render_template('forgot.html',form=form)
 
 @app.route('/reset', methods=['GET', 'POST'])
 def resetpass():
+    if(not session.get('phone')):
+        return redirect(url_for('login'))
 
     session['up']=0
     form= ResetForm()
     if request.method == 'POST':
         ootp = form.data['otp']
         if ootp == session['otp']:
-            if(session['log-in']=='reg'):
+            if(session.get('log-in')=='reg'):
 
                 conn.commit()
                 session.pop('log-in', None)
@@ -420,6 +427,9 @@ def addcrop():
             session['quantity']=int(form.data['quantity'])
             flash('Crop listing successfull','success')
             return redirect(url_for('newcrop'))
+    session.pop('crop', None)
+    session.pop('quantity', None)
+    session.pop('value', None)
 
     form.state.choices=[(1,session['state'])]
     return render_template('addcrop.html',form=form)
@@ -516,6 +526,9 @@ def fhome():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
+    session.pop('crop', None)
+    session.pop('quantity', None)
+    session.pop('value', None)
 
     form=EmptyForm()
     session['up'] = 1
