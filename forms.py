@@ -79,7 +79,7 @@ class AddCropForm(Form):
 
 
 class basepriceForm(Form):
-   bp=StringField("Current Price", validators=[DataRequired()])
+   bp=StringField("Current Price",render_kw={'readonly': True}, validators=[DataRequired()])
    Bp= StringField("New price", validators=[DataRequired()])
    submit= SubmitField("Set Base Price ")
 
