@@ -400,17 +400,26 @@ def changebp():
 @app.route('/newcrop',methods=['GET','POST'])
 def newcrop():
     form=EmptyForm()
+    cursor=conn.cursor()
+
     crop=session['crop']
     baseprice=session['value']
     baseprice=str(baseprice)
     crop=str(crop)
     crop=crop.title()
     print(baseprice,crop)
+    cursor.execute(f"insert into cropinfo values ({session['username']},{crop},{baseprice})")
+    conn.commit()
     session.pop('crop',None)
+
     session.pop('value',None)
 
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice)
+"""
+@app.route('/fhome',methods=['GET','POST'])
+def fhome():
+"""
 
 
 if(__name__== '__main__'):
