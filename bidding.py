@@ -456,7 +456,7 @@ def deletecrop():
         cursor.execute(f"DELETE FROM cropinfo WHERE cropid={id};")
         conn.commit()
         cursor.close()
-        return redirect(url_for('profile'))
+        return redirect(url_for('fhome'))
 
 
 
@@ -471,7 +471,7 @@ def fhome():
     a=cursor.fetchall()
     #list of tuples
     print(a)
-    return render_template('fhome.html',form=form,a=a,dict1=dict1)
+    return render_template('fhome.html',form=form,b=a,dict1=dict1)
 
 
 if(__name__== '__main__'):

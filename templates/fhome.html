@@ -20,7 +20,7 @@
                 <div class="block-heading">
                     <h2 class="text-info">PROFILE</h2>
                 </div>
-                {%for crop in a%}
+                {%for crop in b%}
 
 
                         <h2>{{crop[1]}}</h2>
@@ -51,7 +51,7 @@
             </div>
 
             <p style="text-align:right;">
-  <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary">DELETE CROP</button></a>
+  <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">DELETE CROP</button></a>
             </p>
             {% endfor %}
                  <script type="text/javascript">
