@@ -114,7 +114,7 @@ def login():
                 session['phone']=dict1['phone']
                 session['list']=None
                 session['state']=None
-                session['value'] = None
+
 
                 session['username']=dict1['username']
                 return redirect(url_for('profile'))
@@ -129,6 +129,7 @@ def login():
 @app.route('/profile',methods=['GET','POST'])
 def profile():
     form=EmptyForm()
+    session.pop('value',None)
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
     return render_template('profile.html',dp=full_filename,form=form, dict1=dataret(session['email']))
 
