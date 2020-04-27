@@ -72,6 +72,14 @@ class CropUploadForm(Form):
 class AddCropForm(Form):
    image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
    croptype = StringField("Crop Name", validators=[DataRequired(), Length(min=2, max=30)])
-   state    = SelectField('State', coerce=int)
+   state = SelectField('State', coerce=int)
    bprice= IntegerField("Set Base Price",validators=[DataRequired()])
    submit = SubmitField("Add Crop")
+
+
+
+class basepriceForm(Form):
+   bp=StringField("Current Price", validators=[DataRequired()])
+   Bp= StringField("New price", validators=[DataRequired()])
+   submit= SubmitField("Set Base Price ")
+

@@ -4,7 +4,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm
+from forms import ResetForm, RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -14,6 +14,8 @@ from datetime import date
 import pickle
 import numpy as np
 
+G = pd.read_csv('pincode.csv')
+H = pd.read_excel('FINAL1.xls')
 
 sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
 sc_y = pickle.load(open('model/sc_y.sav', 'rb'))
@@ -84,7 +86,7 @@ def register():
 
 
                 session['log-in']='reg'
-                session['data']=regdata
+
                 session['phone']=result['phone']
                 flash("Verify Otp!","info")
                 return redirect(url_for('resetpass'))
@@ -110,8 +112,10 @@ def login():
                 session['email']=result['email'].lower()
                 session['logged-in']=True
                 session['phone']=dict1['phone']
-                full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
-                session['image']=full_filename
+                session['list']=None
+                session['state']=None
+                session['value'] = None
+
                 session['username']=dict1['username']
                 return redirect(url_for('profile'))
 
@@ -138,6 +142,9 @@ def updateprofile():
         cursor.execute(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}' where email='{email}'")
         conn.commit()
         cursor.close()
+        session.pop('list',None)
+        session.pop('value',None)
+        session.pop('state',None)
         flash("Update Successfull!", "success")
         return redirect('profile')
     else:
@@ -194,7 +201,7 @@ def resetpass():
                 conn.commit()
                 session.pop('log-in', None)
                 session.pop('phone', None)
-                session.pop('data',None)
+
                 return redirect(url_for('login'))
 
 
@@ -265,6 +272,9 @@ def logout():
     session.pop('logged-in', False)
     session.pop('phone', None)
     session.pop('username', None)
+    session.pop('state', None)
+    session.pop('list', None)
+    session.pop('value',None)
     return redirect(url_for('login'))
 
 
@@ -276,7 +286,7 @@ def upload():
         if form.is_submitted():
             d1=dict(session['list'])
             croptype=d1[form.croptype.data]
-            session.pop('list',None)
+            #session.pop('list',None)
             print(croptype)
             from datetime import date
             year_ = date.today().year
@@ -284,22 +294,24 @@ def upload():
             state=session['state']
             state=str(state)
             state=state.capitalize()
-            session.pop('state',None)
+            #session.pop('state',None)
             X=np.array([year_,croptype,state]).reshape(1,-1)
             print(type(croptype))
             print(type(state))
             value=pred(X)
-            print(value)
+            session['value']=value[0]
+            print(type(value[0]))
             form=EmptyForm()
             return render_template('basebid.html',value=value,form=form)
 
-    Y=pd.read_excel('FINAL1.xls')
-    X=pd.read_csv('pincode.csv')
+    X =G
+    Y=H
+
     X['statename']=X['statename'].str.lower()
     Y['State']=Y['State'].str.lower()
     dict1=dataret(session['email'])
     pincode=dict1['pincode']
-    pincode=str(pincode)
+
     state=X['statename'].where(X['pincode']==pincode).unique()
     print(state[1])
     session['state']=state[1]
@@ -326,26 +338,53 @@ def addcrop():
     form=AddCropForm()
     if request.method=="POST":
         if form.is_submitted():
-            d1 = dict(session['list'])
-            state = d1[form.state.data]
-            state=str(state)
+            Y=H
+            crops=Y['Crop'].where(Y['State']==session['state']).unique()
+            crops=list(crops)
+            crops.pop(0)
+            danger=0
+            print(crops)
+            cro=form.data['croptype']
+            cro=str(cro)
+            cro=cro.lower()
+            cro=cro.title()
+            print(cro)
+            if len(crops)!=0:
+                for crop in crops:
+                    if cro==crop:
+                        danger=1
+                        break
+
+            print(danger)
+
 
             return redirect(url_for('profile'))
 
-    session.pop('list', None)
-    Y = pd.read_excel('FINAL1.xls')
-    state=Y['State'].unique()
-    state=list(state)
-    state.pop(0)
-    li = []
-    i = 1
-
-    for a in state:
-        li.append((i, a))
-        i += 1
-    session['list'] = li
-    form.state.choices=li
+    form.state.choices=[(1,session['state'])]
     return render_template('addcrop.html',form=form)
+
+@app.route('/changebp',methods=['GET','POST'])
+def changebp():
+    form=basepriceForm()
+    if request.method=='POST':
+        if form.validate_on_submit():
+            op=float(form.data['bp'])
+            np=float(form.data['Bp'])
+            if op>=np:
+                session['value']=op
+                print(session['value'])
+                flash('PRICE UPDATED AND CROP UP FOR BIDDING','success')
+                return redirect(url_for('profile'))
+            else:
+                flash('PRICE CANT BE HIGHER THAN PREDICTED BASE PRICE','danger')
+                session.pop('value',None)
+                return redirect(url_for('upload'))
+
+            return redirect(url_for('profile'))
+    else:
+        value=session['value']
+        form.bp.data=value
+        return render_template('changeprice.html',form=form)
 
 
 if(__name__== '__main__'):
