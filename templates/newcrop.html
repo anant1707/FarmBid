@@ -18,40 +18,43 @@
         <section class="clean-block clean-form dark">
             <div class="container">
                 <div class="block-heading">
-                    <h2 class="text-info">Price Predictor</h2>
+                    <h2 class="text-info">PROFILE</h2>
                 </div>
 
 
                     <div class="media-body">
+                        <br>
+                        <br>
 
-                        <h2 style="text-align:center;">THE BASE PRICE FOR YOUR CROP IS: </h2>
+                        <h2 style="text-align:center;">Your Crop Has Been Successfully Put Up For Bidding</h2>
                         <br>
-                        <h3 style="text-align:center;">{{value[0]}}</h3>
-                        <br>
-                        <br>
+                        <div style="text-align:center;">
+                            <h3 style="color:red">Crop Name:  {{crop}}</h3>
+                            <h3 style="color:red">Base Price:  {{value}}</h3>
+                        </div>
+
+
                     </div>
                 </div>
+            <br><br>
+
                  <script type="text/javascript">
                 function confirmation()
                 {
-                  var a=confirm("Are you sure you want to decline this base bid ?")
+                  var a=confirm("Are you sure you want to delete your crop from list?")
                   return a;
 
                 }
 
 
-
               </script>
 
             <p style="text-align:center;">
+  <a href="{{url_for('profile')}}" ><button class="btn btn-primary">&nbsp;&nbsp; HOME &nbsp;&nbsp;   </button></a>
+  <a href="{{url_for('profile')}}" onclick="return confirmation();"><button class="btn btn-primary">DELETE CROP</button></a>
 
-  <a href="{{url_for('newcrop')}}" ><button class="btn btn-primary">ACCEPT BASE PRICE</button></a>
-&nbsp;  <a href="{{url_for('profile')}}" onclick="return confirmation();"><button class="btn btn-primary">DECLINE </button></a>
-  &nbsp;
 </p>
-            <br><br>
-            <div style="text-align:center">
-                <a href="/changebp">Base Price too high?Click Here</a></div>
+
             </div>
         </section>
     </main>

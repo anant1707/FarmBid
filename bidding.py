@@ -130,6 +130,7 @@ def login():
 def profile():
     form=EmptyForm()
     session.pop('value',None)
+    session.pop('crop',None)
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
     return render_template('profile.html',dp=full_filename,form=form, dict1=dataret(session['email']))
 
@@ -276,6 +277,7 @@ def logout():
     session.pop('state', None)
     session.pop('list', None)
     session.pop('value',None)
+    session.pop('crop',None)
     return redirect(url_for('login'))
 
 
@@ -301,6 +303,7 @@ def upload():
             print(type(state))
             value=pred(X)
             session['value']=value[0]
+            session['crop']=croptype
             print(type(value[0]))
             form=EmptyForm()
             return render_template('basebid.html',value=value,form=form)
@@ -349,6 +352,8 @@ def addcrop():
             cro=str(cro)
             cro=cro.lower()
             cro=cro.title()
+            value=form.data['bprice']
+            value=float(value)
             print(cro)
             if len(crops)!=0:
                 for crop in crops:
@@ -360,9 +365,10 @@ def addcrop():
             if(danger==1):
                 flash('This Crop is already listed for your state','danger')
                 return redirect(url_for('upload'))
-
+            session['crop']=cro
+            session['value']=value
             flash('Crop listing successfull','success')
-            return redirect(url_for('profile'))
+            return redirect(url_for('newcrop'))
 
     form.state.choices=[(1,session['state'])]
     return render_template('addcrop.html',form=form)
@@ -378,17 +384,33 @@ def changebp():
                 session['value']=op
                 print(session['value'])
                 flash('PRICE UPDATED AND CROP UP FOR BIDDING','success')
-                return redirect(url_for('profile'))
+                return redirect(url_for('newcrop'))
             else:
                 flash('PRICE CANT BE HIGHER THAN PREDICTED BASE PRICE','danger')
-                session.pop('value',None)
-                return redirect(url_for('upload'))
+
+                return redirect(url_for('changebp'))
 
             return redirect(url_for('profile'))
     else:
         value=session['value']
         form.bp.data=value
         return render_template('changeprice.html',form=form)
+
+
+@app.route('/newcrop',methods=['GET','POST'])
+def newcrop():
+    form=EmptyForm()
+    crop=session['crop']
+    baseprice=session['value']
+    baseprice=str(baseprice)
+    crop=str(crop)
+    crop=crop.title()
+    print(baseprice,crop)
+    session.pop('crop',None)
+    session.pop('value',None)
+
+
+    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice)
 
 
 if(__name__== '__main__'):
