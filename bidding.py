@@ -293,6 +293,10 @@ def logout():
 @app.route('/upload',methods=['GET','POST'])
 def upload():
     session['up'] = 0
+    session.pop('crop',None)
+
+    session.pop('value',None)
+
     form = CropUploadForm()
     if request.method=='POST':
         if form.is_submitted():
@@ -433,7 +437,21 @@ def newcrop():
     session.pop('value',None)
 
 
-    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,a=a)
+    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a)
+
+
+@app.route('/deletecrop', methods=['GET', 'POST'])
+def deletecrop():
+    if(request.args):
+        id=request.args['a']
+        id=int(id)
+        cursor=conn.cursor()
+        cursor.execute(f"DELETE FROM cropinfo WHERE cropid={id};")
+        conn.commit()
+        cursor.close()
+        return redirect(url_for('profile'))
+
+
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
