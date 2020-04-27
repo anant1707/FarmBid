@@ -132,6 +132,7 @@ def profile():
     session['up']=1
     form=EmptyForm()
     session.pop('value',None)
+    session.pop('quantity', None)
     session.pop('crop',None)
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
     return render_template('profile.html',dp=full_filename,form=form, dict1=dataret(session['email']))
@@ -287,15 +288,13 @@ def logout():
     session.pop('value',None)
     session.pop('crop',None)
     session.pop('up', None)
+    session.pop('quantity', None)
     return redirect(url_for('login'))
 
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
     session['up'] = 0
-    session.pop('crop',None)
-
-    session.pop('value',None)
 
     form = CropUploadForm()
     if request.method=='POST':
@@ -317,12 +316,18 @@ def upload():
             value=pred(X)
             session['value']=value[0]
             session['crop']=croptype
+            quantity=form.data['quantity']
+            quantity=int(quantity)
+            session['quantity']=quantity
             print(type(value[0]))
             form=EmptyForm()
             return render_template('basebid.html',value=value,form=form)
 
     X =G
     Y=H
+    session.pop('crop', None)
+    session.pop('quantity', None)
+    session.pop('value', None)
 
     X['statename']=X['statename'].str.lower()
     Y['State']=Y['State'].str.lower()
@@ -380,6 +385,7 @@ def addcrop():
                 return redirect(url_for('upload'))
             session['crop']=cro
             session['value']=value
+            session['quantity']=int(form.data['quantity'])
             flash('Crop listing successfull','success')
             return redirect(url_for('newcrop'))
 
@@ -419,11 +425,12 @@ def newcrop():
 
     crop=session['crop']
     baseprice=session['value']
+    quantity=int(session['quantity'])
     baseprice=str(baseprice)
     crop=str(crop)
     crop=crop.title()
 
-    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice) VALUES('{session['username']}','{crop}','{baseprice}');")
+    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity) VALUES('{session['username']}','{crop}','{baseprice}',{quantity});")
     conn.commit()
     cursor.close()
     cursor = conn.cursor()
@@ -432,9 +439,9 @@ def newcrop():
     cursor.execute(f"select cropid from cropinfo where owned='{us}' AND crop='{crop}' AND baseprice='{baseprice}' ")
     a = cursor.fetchone()
     a=a[0]
-    session.pop('crop',None)
-
-    session.pop('value',None)
+    session.pop('crop', None)
+    session.pop('quantity', None)
+    session.pop('value', None)
 
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a)
@@ -458,7 +465,7 @@ def fhome():
     session['up'] = 1
     cursor=conn.cursor()
     us=str(session['username'])
-    cursor.execute(f"select cropid from cropinfo where owned='{us}'")
+    cursor.execute(f"select cropid,crop,baseprice from cropinfo where owned='{us}'")
     a=cursor.fetchall()
     print(a)
 

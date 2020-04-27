@@ -66,6 +66,7 @@ class ImgForm(Form):
 class CropUploadForm(Form):
    image = FileField("UPLOAD CROP IMAGE", validators=[FileAllowed(['jpg', 'png'], 'images only')])
    croptype = SelectField('CROP TYPE', coerce=int)
+   quantity = StringField("Quantity(in quintalls)", validators=[DataRequired(), Length(min=2, max=30)])
    submit = SubmitField("VIEW BASE PRICE")
 
 
@@ -74,6 +75,7 @@ class AddCropForm(Form):
    croptype = StringField("Crop Name", validators=[DataRequired(), Length(min=2, max=30)])
    state = SelectField('State', coerce=int)
    bprice= IntegerField("Set Base Price",validators=[DataRequired()])
+   quantity=StringField("Quantity(in quintalls)", validators=[DataRequired(), Length(min=2, max=30)])
    submit = SubmitField("Add Crop")
 
 
