@@ -408,7 +408,7 @@ def newcrop():
     crop=str(crop)
     crop=crop.title()
     print(baseprice,crop)
-    cursor.execute(f"insert into cropinfo values ({session['username']},{crop},{baseprice})")
+    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice) VALUES('{session['username']}','{crop}','{baseprice}');")
     conn.commit()
     session.pop('crop',None)
 
