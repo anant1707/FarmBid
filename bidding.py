@@ -57,6 +57,7 @@ def home():
 
 @app.route('/register',methods=['GET','POST'])
 def register():
+    session.pop('logged-in',False)
     form=RegistrationForm()
     if request.method=='POST':
         if form.is_submitted():
@@ -97,6 +98,7 @@ def register():
 
 @app.route('/login',methods=['GET','POST'])
 def login():
+    session.pop('logged-in',False)
     form=LoginForm()
     if(request.method == 'POST'):
         cursor=conn.cursor()
@@ -129,6 +131,11 @@ def login():
 
 @app.route('/profile',methods=['GET','POST'])
 def profile():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE','danger')
+        return redirect(url_for('logout'))
+
+
     session['up']=1
     form=EmptyForm()
     session.pop('value',None)
@@ -139,6 +146,10 @@ def profile():
 
 @app.route('/updateprofile',methods=['GET','POST'])
 def updateprofile():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
     session['up']=0
     cursor=conn.cursor()
     form=UpdateForm()
@@ -164,6 +175,10 @@ def updateprofile():
 
 @app.route('/updateimg', methods=['GET', 'POST'])
 def updateimg():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
     session['up'] = 0
     form=ImgForm()
     if request.method == 'POST':
@@ -178,6 +193,8 @@ def updateimg():
 
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
+    session.pop('logged-in', False)
+
     session['up'] = 0
     form=ForgotForm()
     cur = conn.cursor()
@@ -235,6 +252,11 @@ def resetpass():
 
 @app.route('/changepass',methods=['GET','POST'])
 def changepass():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
+
     session['up'] = 0
     form=ChangePassword()
     if request.method=='POST':
@@ -257,6 +279,7 @@ def changepass():
 
 @app.route('/newpass', methods=['GET', 'POST'])
 def newpass():
+
     session['up'] = 0
     form=NewPassForm()
     cur = conn.cursor()
@@ -294,6 +317,10 @@ def logout():
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
     session['up'] = 0
 
     form = CropUploadForm()
@@ -314,14 +341,15 @@ def upload():
             print(type(croptype))
             print(type(state))
             value=pred(X)
-            session['value']=value[0]
+            session['value']=(value[0]*1.55)
+
             session['crop']=croptype
             quantity=form.data['quantity']
             quantity=int(quantity)
             session['quantity']=quantity
             print(type(value[0]))
             form=EmptyForm()
-            return render_template('basebid.html',value=value,form=form)
+            return render_template('basebid.html',value=session['value'],form=form)
 
     X =G
     Y=H
@@ -356,6 +384,10 @@ def upload():
 
 @app.route('/addcrop',methods=['GET','POST'])
 def addcrop():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
     session['up'] = 0
     form=AddCropForm()
     if request.method=="POST":
@@ -394,6 +426,13 @@ def addcrop():
 
 @app.route('/changebp',methods=['GET','POST'])
 def changebp():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if(not session.get('value')):
+        flash('No crop specified to change price for','danger')
+        return redirect(url_for('upload'))
+
     session['up'] = 0
     form=basepriceForm()
     if request.method=='POST':
@@ -419,6 +458,12 @@ def changebp():
 
 @app.route('/newcrop',methods=['GET','POST'])
 def newcrop():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if(not session.get('crop')):
+        return redirect(url_for('fhome'))
+
     session['up'] = 1
     form=EmptyForm()
     cursor=conn.cursor()
@@ -449,6 +494,12 @@ def newcrop():
 
 @app.route('/deletecrop', methods=['GET', 'POST'])
 def deletecrop():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if( not request.args.get('a') ):
+        return redirect(url_for('fhome'))
+
     if(request.args):
         id=request.args['a']
         id=int(id)
@@ -462,6 +513,10 @@ def deletecrop():
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
     form=EmptyForm()
     session['up'] = 1
     cursor=conn.cursor()
