@@ -444,7 +444,7 @@ def newcrop():
     session.pop('value', None)
 
 
-    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a)
+    return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a,quantity=quantity)
 
 
 @app.route('/deletecrop', methods=['GET', 'POST'])
@@ -462,12 +462,16 @@ def deletecrop():
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
+    form=EmptyForm()
     session['up'] = 1
     cursor=conn.cursor()
+    dict1=dataret(session['email'])
     us=str(session['username'])
-    cursor.execute(f"select cropid,crop,baseprice from cropinfo where owned='{us}'")
+    cursor.execute(f"select cropid,crop,baseprice,quantity from cropinfo where owned='{us}'")
     a=cursor.fetchall()
+    #list of tuples
     print(a)
+    return render_template('fhome.html',form=form,a=a,dict1=dict1)
 
 
 if(__name__== '__main__'):

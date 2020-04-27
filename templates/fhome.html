@@ -1,0 +1,72 @@
+{%extends "base.html"%}
+{%block title%}
+<title>{{title}}</title>
+{%endblock title%}
+{%block content%}
+    <main class="page login-page">
+         {% with messages=get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for c,m in messages %}
+            <div class="alert alert-{{c}}" role="alert">
+               <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
+                {{m}}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">PROFILE</h2>
+                </div>
+                {%for crop in a%}
+
+
+                        <h2>{{crop[1]}}</h2>
+
+                </div>
+            <div style=" background-color: white;">
+
+                    <div class="table-responsive" >
+                        <table class="table">
+                            <thead>
+
+                                <tr>
+                                    <th>BASE PRICE</th>
+                                    <th>{{crop[2]}}</th>
+                                </tr>
+                                <tr>
+                                    <th>QUANTITY</th>
+                                    <th>{{crop[3]}}</th>
+                                </tr>
+</div>
+
+
+
+
+                            </thead>
+                        </table>
+                    </div>
+            </div>
+
+            <p style="text-align:right;">
+  <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary">Update Profile</button></a>
+            </p>
+            {% endfor %}
+                 <script type="text/javascript">
+                function confirmation()
+                {
+                  var a=confirm("Are you sure you want to update ?")
+                  return a;
+
+                }
+
+
+              </script>
+
+            </div>
+        </section>
+    </main>
+   {%endblock content%}
+
