@@ -80,8 +80,6 @@ class AddCropForm(Form):
    description=TextAreaField("Description", validators=[DataRequired(), Length(max=100)])
    submit = SubmitField("Add Crop")
 
-
-
 class basepriceForm(Form):
    bp=StringField("Current Price",render_kw={'readonly': True}, validators=[DataRequired()])
    Bp= StringField("New price", validators=[DataRequired()])
@@ -89,7 +87,7 @@ class basepriceForm(Form):
 
 class SearchForm(Form):
    croptype = SelectField('CROP TYPE', coerce=int)
-   state= SelectField('CROP TYPE', coerce=int)
-   sortby=SelectField('SORT BY',choices=[(1,''),(2,'DISTANCE'),(3,'PRICE-LOW TO HIGH'),(4,'PRICE-HIGH TO LOW')])
+   state= SelectField('STATE', coerce=int)
+   sortby=SelectField('SORT BY',choices=[(1,'NA'),(2,'DISTANCE'),(3,'PRICE-LOW TO HIGH'),(4,'PRICE-HIGH TO LOW')])
    submit = SubmitField("VIEW RESULTS")
 

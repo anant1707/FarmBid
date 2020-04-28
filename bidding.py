@@ -3,7 +3,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm
+from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -621,7 +621,68 @@ def fhome():
     print(a)
     i=0
     return render_template('fhome.html',form=form,b=a,dict1=dict1,i=i)
+@app.route('/bhome',methods=['GET','POST'])
+def bhome():
+    X=H
+    Y=G
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'B'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    form = SearchForm()
+    if request.method == 'POST':
+        if form.is_submitted():
+            session['state'] = form.state.data.title()
+            session['sortby'] = form.state.data
+            session['crop'] = form.croptype.data.title()
+            return redirect(url_for('bhome'))
 
+    cursor = conn.cursor()
+    dict1 = dataret(session['email'])
+    if (session.get('state')):
+        state=session['state']
+        crop=session['crop']
+        sortby=session['sortby']
+
+        cursor.execute("select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where ")
+    cursor.execute("select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo")
+    a = cursor.fetchall()
+    Y['statename'] = Y['statename'].str.lower()
+    X['State'] = X['State'].str.lower()
+    dict1 = dataret(session['email'])
+    pincode = dict1['pincode']
+    state = Y['statename'].where(Y['pincode'] == pincode).unique()
+    print(state[1])
+    session['mystate'] = state[1]
+    cursor.execute("select distinct crop from cropinfo")
+    croplist=cursor.fetchall()
+    cclist=[]
+    for i in croplist:
+        cclist.append(i[0])
+    clist=list(X['Crop'].dropna().unique())
+    clist.extend(cclist)
+    croplist=list(set(clist))
+    statelist=list(X['State'].dropna().unique())
+
+    fcroplist=[]
+    i=2
+    fcroplist.append((1,'NA'))
+    for j in croplist:
+        fcroplist.append((i,j))
+        i+=1
+    fstatelist=[]
+    i = 2
+    fcroplist.append((1, 'NA'))
+    for j in statelist:
+        fstatelist.append((i, j))
+        i += 1
+    form.croptype.choices = fcroplist
+    form.state.choices=fstatelist
+    session['fcroplist']=fcroplist
+    session['fstatelist']=fstatelist
+    return render_template('bhome.html', form=form, b=a, dict1=dict1)
 
 if(__name__== '__main__'):
         app.run(debug=True)
