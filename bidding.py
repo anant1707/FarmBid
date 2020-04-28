@@ -326,7 +326,10 @@ def logout():
     session.pop('crop',None)
     session.pop('up', None)
     session.pop('quantity', None)
-    session.pop('img', None)
+    if(session.get('img')):
+        os.remove(os.path.join(os.getcwd(), 'static/media/temp',session['img']))
+        session.pop('img', None)
+
     return redirect(url_for('login'))
 
 
