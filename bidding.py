@@ -358,7 +358,15 @@ def upload():
             X=np.array([year_,croptype,state]).reshape(1,-1)
             print(type(croptype))
             print(type(state))
+            cur = conn.cursor()
+            owned = str(session['username'])
+            cur.execute(f"select cropid from cropinfo where owned='{owned}' and crop='{croptype}'")
+            t = cur.fetchone()
+            if (t is not None):
+                flash("You have already registered this crop", 'danger')
+                return redirect(url_for('upload'))
             value=pred(X)
+
             session['value']=(value[0]*1.55)
 
             session['crop']=croptype
@@ -440,6 +448,13 @@ def addcrop():
             print(danger)
             if(danger==1):
                 flash('This Crop is already listed for your state','danger')
+                return redirect(url_for('upload'))
+            cur = conn.cursor()
+            owned = str(session['username'])
+            cur.execute(f"select cropid from cropinfo where owned='{owned}' and crop='{cro}'")
+            t = cur.fetchone()
+            if (t is not None):
+                flash("You have already registered this crop", 'danger')
                 return redirect(url_for('upload'))
             session['crop']=cro
             session['value']=value
