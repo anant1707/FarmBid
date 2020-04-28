@@ -54,8 +54,7 @@ def dataret(email):
 
 @app.route('/')
 def home():
-    print(pred(np.array([2019, 'Paddy', 'Punjab']).reshape(1, -1)))
-    return redirect(url_for('login'))
+    return render_template('index.html',form=EmptyForm())
 
 @app.route('/register',methods=['GET','POST'])
 def register():
@@ -291,7 +290,6 @@ def changepass():
 
     return render_template('newpass.html',form=form,title="Change Password")
 
-
 @app.route('/newpass', methods=['GET', 'POST'])
 def newpass():
 
@@ -333,7 +331,6 @@ def logout():
         session.pop('img', None)
 
     return redirect(url_for('login'))
-
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
@@ -418,7 +415,6 @@ def upload():
     form.croptype.choices = li
 
     return render_template('cropupload.html',form=form)
-
 
 @app.route('/addcrop',methods=['GET','POST'])
 def addcrop():
@@ -516,7 +512,6 @@ def changebp():
         form.bp.data=value
         return render_template('changeprice.html',form=form)
 
-
 @app.route('/newcrop',methods=['GET','POST'])
 def newcrop():
     if (not session.get('logged-in')):
@@ -564,7 +559,6 @@ def newcrop():
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a,quantity=quantity)
 
-
 @app.route('/deletecrop', methods=['GET', 'POST'])
 def deletecrop():
     if (not session.get('logged-in')):
@@ -585,8 +579,6 @@ def deletecrop():
         conn.commit()
         cursor.close()
         return redirect(url_for('fhome'))
-
-
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
@@ -613,7 +605,6 @@ def fhome():
     #list of tuples
     print(a)
     return render_template('fhome.html',form=form,b=a,dict1=dict1)
-
 
 if(__name__== '__main__'):
         app.run(debug=True)
