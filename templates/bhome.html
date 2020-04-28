@@ -16,22 +16,14 @@
             {% endif %}
             {% endwith %}
         <form method="POST" enctype="multipart/form-data">
-                    {{ form.csrf_token }}
-                      <p>
-                    {% for field in form%}
-                    <div class="form-group">
-                        {%if field.type=="SubmitField"%}
-                        {{field(class_="btn btn-primary btn-block")}}
-                        {%else%}
-                        {%if field.label.text!="CSRF Token"%}
-                        {{field.label}} {{field(class_="form-control")}}
-                        {%endif%}
-                        {%endif%}
-                    </div>
-                    {%endfor%}
-            &nbsp;&nbsp;
-                 </p>
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-2">{{form.croptype.label}}{{form.croptype(class_="form-control")}}</div>
+                <div class="col-md-3">{{form.state.label}}{{form.state(class_="form-control")}}</div>
+                <div class="col-md-3">{{form.sortby.label}}{{form.sortby(class_="form-control")}}</div>
+                <div class="col-md-2"><br>{{form.submit(class_="btn btn-primary")}}</div>
 
+            </div>
                 </form>
 
         <section class="clean-block clean-form dark">

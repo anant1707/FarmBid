@@ -674,9 +674,9 @@ def bhome():
         i+=1
     fstatelist=[]
     i = 2
-    fcroplist.append((1, 'NA'))
+    fstatelist.append((1, 'NA'))
     for j in statelist:
-        fstatelist.append((i, j))
+        fstatelist.append((i, j.title()))
         i += 1
     form.croptype.choices = fcroplist
     form.state.choices=fstatelist
