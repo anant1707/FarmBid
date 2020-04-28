@@ -87,3 +87,9 @@ class basepriceForm(Form):
    Bp= StringField("New price", validators=[DataRequired()])
    submit= SubmitField("Set Base Price ")
 
+class SearchForm(Form):
+   croptype = SelectField('CROP TYPE', coerce=int)
+   state= SelectField('CROP TYPE', coerce=int)
+   sortby=SelectField('SORT BY',choices=[(1,''),(2,'DISTANCE'),(3,'PRICE-LOW TO HIGH'),(4,'PRICE-HIGH TO LOW')])
+   submit = SubmitField("VIEW RESULTS")
+

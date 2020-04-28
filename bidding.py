@@ -3,7 +3,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm
+from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -291,7 +291,6 @@ def changepass():
 
     return render_template('newpass.html',form=form,title="Change Password")
 
-
 @app.route('/newpass', methods=['GET', 'POST'])
 def newpass():
 
@@ -333,7 +332,6 @@ def logout():
         session.pop('img', None)
 
     return redirect(url_for('login'))
-
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
@@ -418,7 +416,6 @@ def upload():
     form.croptype.choices = li
 
     return render_template('cropupload.html',form=form)
-
 
 @app.route('/addcrop',methods=['GET','POST'])
 def addcrop():
@@ -516,7 +513,6 @@ def changebp():
         form.bp.data=value
         return render_template('changeprice.html',form=form)
 
-
 @app.route('/newcrop',methods=['GET','POST'])
 def newcrop():
     if (not session.get('logged-in')):
@@ -564,7 +560,6 @@ def newcrop():
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a,quantity=quantity)
 
-
 @app.route('/deletecrop', methods=['GET', 'POST'])
 def deletecrop():
     if (not session.get('logged-in')):
@@ -585,8 +580,6 @@ def deletecrop():
         conn.commit()
         cursor.close()
         return redirect(url_for('fhome'))
-
-
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
@@ -613,10 +606,26 @@ def fhome():
     #list of tuples
     print(a)
     return render_template('fhome.html',form=form,b=a,dict1=dict1)
-
-
+@app.route('/bhome')
+def bhome():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if(not session['username'][0]=='B'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
+    form=SearchForm()
+    session['up'] = 1
+    cursor=conn.cursor()
+    dict1=dataret(session['email'])
+    us=str(session['username'])
+    cursor.execute("select cropid,crop,baseprice,quantity,description,enddate from cropinfo")
+    a=cursor.fetchall()
+    #list of tuples
+    print(a)
+    return render_template('fhome.html',form=form,b=a,dict1=dict1)
 if(__name__== '__main__'):
-        app.run(debug=True)
+        app.run('172.20.10.3',debug=True)
 
 
 """
