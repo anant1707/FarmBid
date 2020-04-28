@@ -88,7 +88,7 @@ def register():
                 return redirect(url_for('login'))
             else:
 
-
+                form.image.data.save( os.path.join(os.getcwd(), 'static/media/profile_image', form.data['email'].lower()))
                 session['log-in']='reg'
 
                 session['phone']=result['phone']
@@ -145,7 +145,10 @@ def profile():
     session.pop('value',None)
     session.pop('quantity', None)
     session.pop('crop',None)
-    session.pop('img', None)
+    if (session.get('img')):
+        os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
+        session.pop('img', None)
+
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
     return render_template('profile.html',dp=full_filename,form=form, dict1=dataret(session['email']))
 
@@ -374,7 +377,9 @@ def upload():
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
-    session.pop('img', None)
+    if(session.get('img')):
+        os.remove(os.path.join(os.getcwd(), 'static/media/temp',session['img']))
+        session.pop('img', None)
 
     X['statename']=X['statename'].str.lower()
     Y['State']=Y['State'].str.lower()
@@ -447,7 +452,9 @@ def addcrop():
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
-    session.pop('img', None)
+    if (session.get('img')):
+        os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
+        session.pop('img', None)
 
     form.state.choices=[(1,session['state'])]
     return render_template('addcrop.html',form=form)
@@ -566,7 +573,9 @@ def fhome():
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
-    session.pop('img', None)
+    if (session.get('img')):
+        os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
+        session.pop('img', None)
 
     form=EmptyForm()
     session['up'] = 1
