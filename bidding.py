@@ -15,7 +15,7 @@ import numpy as np
 import shutil
 import datetime
 G = pd.read_csv('pincode.csv')
-H = pd.read_excel('FINAL1.xls')
+H = pd.read_excel('FINAL1.xls' )
 
 sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
 sc_y = pickle.load(open('model/sc_y.sav', 'rb'))
