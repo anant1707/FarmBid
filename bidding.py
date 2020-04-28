@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -54,6 +54,8 @@ def dataret(email):
 
 @app.route('/')
 def home():
+    session.pop('logged-in', False)
+    session.pop('phone', False)
     form=EmptyForm()
     return render_template('index.html',form=form)
 
@@ -332,7 +334,7 @@ def logout():
         os.remove(os.path.join(os.getcwd(), 'static/media/temp',session['img']))
         session.pop('img', None)
 
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 
 @app.route('/upload',methods=['GET','POST'])
@@ -542,7 +544,12 @@ def newcrop():
     dat = datetime.date.today() + datetime.timedelta(days=20)
     dat=dat.isoformat()
     print(type(dat))
-    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity,description,enddate) VALUES('{session['username']}','{crop}','{baseprice}',{quantity},'{description}','{dat}');")
+    state=session['state']
+    state=str(state)
+    state=state.lower()
+    state=state.title()
+
+    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity,description,enddate,state) VALUES('{session['username']}','{crop}','{baseprice}',{quantity},'{description}','{dat}','{state}');")
     conn.commit()
     cursor.close()
     cursor = conn.cursor()
@@ -612,7 +619,8 @@ def fhome():
     a=cursor.fetchall()
     #list of tuples
     print(a)
-    return render_template('fhome.html',form=form,b=a,dict1=dict1)
+    i=0
+    return render_template('fhome.html',form=form,b=a,dict1=dict1,i=i)
 
 
 if(__name__== '__main__'):

@@ -15,10 +15,31 @@
             {% endfor %}
             {% endif %}
             {% endwith %}
+        <form method="POST" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                      <p>
+                    {% for field in form%}
+                    <div class="form-group">
+                        {%if field.type=="SubmitField"%}
+                        {{field(class_="btn btn-primary btn-block")}}
+                        {%else%}
+                        {%if field.label.text!="CSRF Token"%}
+                        {{field.label}} {{field(class_="form-control")}}
+                        {%endif%}
+                        {%endif%}
+                    </div>
+                    {%endfor%}
+            &nbsp;&nbsp;
+                 </p>
+
+                </form>
+
         <section class="clean-block clean-form dark">
             <div class="container">
                 <div class="block-heading">
-                    <h2 class="text-info">YOUR CROPS OPEN FOR BIDDING</h2>
+                    {% if session.get('croptype')%}
+                    <h2 class="text-info">YOUR RESULTS </h2>
+                    { % endif % }
                 </div>
                 {%for crop in b%}
 
