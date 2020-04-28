@@ -215,6 +215,7 @@ def forgot():
             session['logged-in']=False
             dict1=dataret(f'{a[0]}')
             session['username']=dict1['username']
+            session['up']=1
             return redirect(url_for('resetpass'))
 
     return render_template('forgot.html',form=form)
@@ -327,6 +328,9 @@ def upload():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
+    if(not session['username'][0]=='F'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
 
     session['up'] = 0
 
@@ -394,7 +398,9 @@ def addcrop():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
-
+    if(not session['username'][0]=='F'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
     session['up'] = 0
     form=AddCropForm()
     if request.method=="POST":
@@ -439,6 +445,9 @@ def changebp():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
+    if(not session['username'][0]=='F'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
     if(not session.get('value')):
         flash('No crop specified to change price for','danger')
         return redirect(url_for('upload'))
@@ -471,6 +480,9 @@ def newcrop():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
+    if(not session['username'][0]=='F'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
     if(not session.get('crop')):
         return redirect(url_for('fhome'))
 
@@ -507,6 +519,9 @@ def deletecrop():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
+    if (not session['username'][0]=='F'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
     if( not request.args.get('a') ):
         return redirect(url_for('fhome'))
 
@@ -526,6 +541,9 @@ def fhome():
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
+    if(not session['username'][0]=='F'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
