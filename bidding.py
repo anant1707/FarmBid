@@ -54,8 +54,8 @@ def dataret(email):
 
 @app.route('/')
 def home():
-    print(pred(np.array([2019, 'Paddy', 'Punjab']).reshape(1, -1)))
-    return redirect(url_for('login'))
+    form=EmptyForm()
+    return render_template('index.html',form=form)
 
 @app.route('/register',methods=['GET','POST'])
 def register():
@@ -84,7 +84,7 @@ def register():
             try:
                 cursor.execute(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
             except:
-                flash(f"User Already exists","danger")
+                flash(f"User Credentials exists","danger")
                 return redirect(url_for('login'))
             else:
 
@@ -130,7 +130,7 @@ def login():
                 flash("Incorrect Password!","danger")
                 return render_template("login.html",form=form)
     else:
-        flash("welcome to login page!", "success")
+
         return render_template('login.html',form=form)
 
 @app.route('/profile',methods=['GET','POST'])
@@ -608,7 +608,7 @@ def fhome():
     cursor=conn.cursor()
     dict1=dataret(session['email'])
     us=str(session['username'])
-    cursor.execute(f"select cropid,crop,baseprice,quantity from cropinfo where owned='{us}'")
+    cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where owned='{us}'")
     a=cursor.fetchall()
     #list of tuples
     print(a)

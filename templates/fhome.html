@@ -20,23 +20,53 @@
                 <div class="block-heading">
                     <h2 class="text-info">YOUR CROPS OPEN FOR BIDDING</h2>
                 </div>
+                {%for crop in b%}
                 <div class="row">
                     <div class="col-md-2"></div>
-                {%for crop in b%}
-<div class="col-md-8">
-  <div class="media border p-5">
-    <img src="/static/media/cropimg/{{crop[0]}}" alt="John Doe" class="mr-3" style="width:100px;">
-    <div class="media-body">
-      <h4>{{crop[1]}} <small><i>Posted on February 19, 2016</i></small></h4>
-      <p>description</p>
-        <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">VIEW BIDS</button></a>
-      <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-danger">DELETE CROP</button></a>
+                    <div class="col-md-8">
+
+
+  <div class="card" style="width:inherit">
+   <!-- <img class="card-img" src="static/media/cropimg/{{crop[0]}}" alt="Card image" style="width:100%">-->
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3"><div class="media"><img class="mr-3" height="200" width="200"  src="static/media/cropimg/{{crop[0]}}"></div></div>
+              <div class="col-md-2"></div>
+            <div class="col-md-3"><br><br><h2 class="card-title" >{{crop[1]}}</h2></div>
+        </div>
+        <br>
+        <p>{{crop[4]}}</p>
+      <div >
+                        <table class="table">
+                            <tr>
+                                    <th>Bidding ends on:</th>
+                                    <th>{{crop[5]}}</th>
+                                </tr>
+                            <tr>
+                                    <th>Base Price</th>
+                                    <th>{{crop[2]}}</th>
+                                </tr>
+                            <tr>
+                                    <th>Quantity</th>
+                                    <th>{{crop[3]}} Qtls.</th>
+                                </tr>
+
+                        </table>
+        <p style="text-align:center">
+      <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">VIEW BIDS</button></a>
+        <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-danger">DELETE CROP</button></a>
+        </p>
+    </div>
+  </div>
+
+
     </div>
 
   </div>
 </div>
 
-
+<br>
+                <br>
             {% endfor %}
                  <script type="text/javascript">
                 function confirmation()
