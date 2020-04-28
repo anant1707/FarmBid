@@ -1,5 +1,4 @@
 from builtins import str
-
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
@@ -37,8 +36,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -369,9 +368,9 @@ def upload():
                 flash("You have already registered this crop", 'danger')
                 return redirect(url_for('upload'))
             value=pred(X)
-
-            session['value']=(value[0]*1.55)
-
+            value[0]="{:.2f}".format(round(value[0], 2))
+            session['value']=(float(value[0]*1.55))
+            session['value']=float("{:.2f}".format(round(session['value'], 2)))
             session['crop']=croptype
             quantity=form.data['quantity']
             quantity=int(quantity)
@@ -460,7 +459,7 @@ def addcrop():
                 flash("You have already registered this crop", 'danger')
                 return redirect(url_for('upload'))
             session['crop']=cro
-            session['value']=value
+            session['value']=float("{:.2f}".format(round(value,2)))
             pth=str(random.randint(1,900000))
             form.image.data.save(os.path.join(os.getcwd(), 'static/media/temp',pth ))
             session['img']=pth

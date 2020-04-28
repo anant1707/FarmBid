@@ -22,19 +22,39 @@
                 </div>
 
 
-                    <div class="media-body">
-                        <br>
-                        <br>
+                    <div class="row">
+                        <div class="col-md-2"><div class="col-md-2"><img class="mr-3" height="150" width="150" border-radius="50%" src="static/media/cropimg/{{id}}"></div>
+</div>
+                        <div class="col-md-8">
+                            <table class="table responsive">
+                                <tr>
+                                    <td>
+                                        Crop:
+                                    </td>
+                                    <td>
+                                        {{crop}}
+                                    </td>
+                                </tr>
+                                    <tr>
+                                        <td>
+                                        Base Price:
+                                    </td>
+                                    <td>
+                                        {{value}}
+                                    </td>
+                                    </tr>
+                                <tr>
+                                    <td>
+                                        Quantity:
+                                    </td>
+                                    <td>
+                                        {{quantity}}
+                                    </td>
+                                </tr>
 
-                        <h2 style="text-align:center;">Your Crop Has Been Successfully Put Up For Bidding</h2>
-                        <br>
-                        <div style="text-align:center;">
-                            <h3 style="color:red">Crop Name:  {{crop}}</h3>
-                            <h3 style="color:red">Base Price:  {{value}}</h3>
-                             <h3 style="color:red">Quantity:  {{quantity}}</h3>
+                            </table>
                         </div>
-
-
+                        <div class="col-md-2"></div>
                     </div>
                 </div>
             <br><br>
@@ -51,8 +71,8 @@
               </script>
 
             <p style="text-align:center;">
-  <a href="{{url_for('profile')}}" ><button class="btn btn-primary">&nbsp;&nbsp; HOME &nbsp;&nbsp;   </button></a>
-  <a href="{{url_for('deletecrop',a=id)}}" onclick="return confirmation();"><button class="btn btn-primary">DELETE CROP</button></a>
+  <a href="{{url_for('fhome')}}" ><button class="btn btn-primary">&nbsp;&nbsp; HOME &nbsp;&nbsp;   </button></a>
+  <a href="{{url_for('deletecrop',a=id)}}" onclick="return confirmation();"><button class="btn btn-danger">DELETE CROP</button></a>
 
 </p>
 
