@@ -13,6 +13,7 @@ from datetime import date
 import pickle
 import numpy as np
 import shutil
+import datetime
 G = pd.read_csv('pincode.csv')
 H = pd.read_excel('FINAL1.xls')
 
@@ -36,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -144,6 +145,7 @@ def profile():
     session.pop('value',None)
     session.pop('quantity', None)
     session.pop('crop',None)
+
     if (session.get('img')):
         os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
         session.pop('img', None)
@@ -325,6 +327,7 @@ def logout():
     session.pop('crop',None)
     session.pop('up', None)
     session.pop('quantity', None)
+    session.pop('description', None)
     if(session.get('img')):
         os.remove(os.path.join(os.getcwd(), 'static/media/temp',session['img']))
         session.pop('img', None)
@@ -379,6 +382,7 @@ def upload():
             pth=str(random.randint(1,900000))
             form.image.data.save(os.path.join(os.getcwd(), 'static/media/temp',pth ))
             session['img']=pth
+            session['description']=str(form.data['description'])
             form=EmptyForm()
             return render_template('basebid.html',value=session['value'],form=form)
 
@@ -464,7 +468,9 @@ def addcrop():
             form.image.data.save(os.path.join(os.getcwd(), 'static/media/temp',pth ))
             session['img']=pth
             session['quantity']=int(form.data['quantity'])
+            session['description']=str(form.data['description'])
             flash('Crop listing successfull','success')
+
             return redirect(url_for('newcrop'))
     session.pop('crop', None)
     session.pop('quantity', None)
@@ -530,10 +536,13 @@ def newcrop():
     baseprice=session['value']
     quantity=int(session['quantity'])
     baseprice=str(baseprice)
+    description=session['description']
     crop=str(crop)
     crop=crop.title()
-
-    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity) VALUES('{session['username']}','{crop}','{baseprice}',{quantity});")
+    dat = datetime.date.today() + datetime.timedelta(days=20)
+    dat=dat.isoformat()
+    print(type(dat))
+    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity,description,enddate) VALUES('{session['username']}','{crop}','{baseprice}',{quantity},'{description}','{dat}');")
     conn.commit()
     cursor.close()
     cursor = conn.cursor()
@@ -551,7 +560,7 @@ def newcrop():
     session.pop('quantity', None)
     session.pop('value', None)
     session.pop('img', None)
-
+    session.pop('description', None)
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a,quantity=quantity)
 
