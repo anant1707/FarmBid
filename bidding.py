@@ -13,7 +13,7 @@ import random
 from datetime import date
 import pickle
 import numpy as np
-
+import shutil
 G = pd.read_csv('pincode.csv')
 H = pd.read_excel('FINAL1.xls')
 
@@ -36,11 +36,13 @@ def pred(X):
     return Y
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
+CROP_FOLDER=os.path.join('static','media/cropimg')
 #conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
 conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
+app.config['CROP_IMG']=CROP_FOLDER
 
 def dataret(email):
     cursor=conn.cursor()
@@ -143,6 +145,7 @@ def profile():
     session.pop('value',None)
     session.pop('quantity', None)
     session.pop('crop',None)
+    session.pop('img', None)
     full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
     return render_template('profile.html',dp=full_filename,form=form, dict1=dataret(session['email']))
 
@@ -320,6 +323,7 @@ def logout():
     session.pop('crop',None)
     session.pop('up', None)
     session.pop('quantity', None)
+    session.pop('img', None)
     return redirect(url_for('login'))
 
 
@@ -359,6 +363,9 @@ def upload():
             quantity=int(quantity)
             session['quantity']=quantity
             print(type(value[0]))
+            pth=str(random.randint(1,900000))
+            form.image.data.save(os.path.join(os.getcwd(), 'static/media/temp',pth ))
+            session['img']=pth
             form=EmptyForm()
             return render_template('basebid.html',value=session['value'],form=form)
 
@@ -367,6 +374,7 @@ def upload():
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
+    session.pop('img', None)
 
     X['statename']=X['statename'].str.lower()
     Y['State']=Y['State'].str.lower()
@@ -430,12 +438,16 @@ def addcrop():
                 return redirect(url_for('upload'))
             session['crop']=cro
             session['value']=value
+            pth=str(random.randint(1,900000))
+            form.image.data.save(os.path.join(os.getcwd(), 'static/media/temp',pth ))
+            session['img']=pth
             session['quantity']=int(form.data['quantity'])
             flash('Crop listing successfull','success')
             return redirect(url_for('newcrop'))
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
+    session.pop('img', None)
 
     form.state.choices=[(1,session['state'])]
     return render_template('addcrop.html',form=form)
@@ -503,12 +515,18 @@ def newcrop():
     cursor = conn.cursor()
 
     us = str(session['username'])
+
     cursor.execute(f"select cropid from cropinfo where owned='{us}' AND crop='{crop}' AND baseprice='{baseprice}' ")
     a = cursor.fetchone()
     a=a[0]
+    os.rename(os.path.join(os.getcwd(), 'static/media/temp',session['img']), os.path.join(os.getcwd(), 'static/media/temp',str(a)))
+
+    shutil.copy(os.path.join(os.getcwd(), 'static/media/temp',str(a)), os.path.join(os.getcwd(), 'static/media/cropimg',str(a)))
+    os.remove(os.path.join(os.getcwd(), 'static/media/temp',str(a)))
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
+    session.pop('img', None)
 
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a,quantity=quantity)
@@ -528,6 +546,7 @@ def deletecrop():
     if(request.args):
         id=request.args['a']
         id=int(id)
+        os.remove(os.path.join(os.getcwd(), 'static/media/cropimg', str(id)))
         cursor=conn.cursor()
         cursor.execute(f"DELETE FROM cropinfo WHERE cropid={id};")
         conn.commit()
@@ -547,6 +566,7 @@ def fhome():
     session.pop('crop', None)
     session.pop('quantity', None)
     session.pop('value', None)
+    session.pop('img', None)
 
     form=EmptyForm()
     session['up'] = 1
@@ -562,3 +582,12 @@ def fhome():
 
 if(__name__== '__main__'):
         app.run(debug=True)
+
+
+"""
+files = ['file1.txt', 'file2.txt', 'file3.txt']
+for f in files:
+    shutil.copy(f, 'dest_folder')
+
+os.remove(path)
+rename(fname, fname.replace(name, '', 1))"""
