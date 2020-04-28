@@ -1,0 +1,107 @@
+{%extends "base.html"%}
+{%block title%}
+<title>{{title}}</title>
+{%endblock title%}
+{%block content%}
+    <main class="page login-page">
+         {% with messages=get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for c,m in messages %}
+            <div class="alert alert-{{c}}" role="alert">
+               <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
+                {{m}}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        <form method="POST" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                      <p>
+                    {% for field in form%}
+                    <div class="form-group">
+                        {%if field.type=="SubmitField"%}
+                        {{field(class_="btn btn-primary btn-block")}}
+                        {%else%}
+                        {%if field.label.text!="CSRF Token"%}
+                        {{field.label}} {{field(class_="form-control")}}
+                        {%endif%}
+                        {%endif%}
+                    </div>
+                    {%endfor%}
+            &nbsp;&nbsp;
+                 </p>
+
+                </form>
+
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    {% if session.get('croptype')%}
+                    <h2 class="text-info">YOUR RESULTS </h2>
+                    { % endif % }
+                </div>
+                {%for crop in b%}
+
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8">
+
+
+  <div class="card" style="width:inherit">
+   <!-- <img class="card-img" src="static/media/cropimg/{{crop[0]}}" alt="Card image" style="width:100%">-->
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3"><div class="media"><img class="mr-3" height="200" width="200"  src="static/media/cropimg/{{crop[0]}}"></div></div>
+              <div class="col-md-2"></div>
+            <div class="col-md-3"><br><br><br><h2 class="card-title" >{{crop[1]}}</h2></div>
+        </div>
+        <br>
+        <p>{{crop[4]}}</p>
+      <div >
+                        <table class="table">
+                            <tr>
+                                    <th>Bidding ends on:</th>
+                                    <th>{{crop[5]}}</th>
+                                </tr>
+                            <tr>
+                                    <th>Base Price</th>
+                                    <th>{{crop[2]}}</th>
+                                </tr>
+                            <tr>
+                                    <th>Quantity</th>
+                                    <th>{{crop[3]}} Qtls.</th>
+                                </tr>
+
+                        </table>
+        <p style="text-align:center">
+      <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">VIEW BIDS</button></a>
+        <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-danger">DELETE CROP</button></a>
+        </p>
+    </div>
+  </div>
+
+
+    </div>
+
+  </div>
+
+</div>
+
+<br>
+                <br>
+            {% endfor %}
+                 <script type="text/javascript">
+                function confirmation()
+                {
+                  var a=confirm("Are you sure you want to update ?")
+                  return a;
+
+                }
+              </script>
+
+            </div>
+        </section>
+    </main>
+   {%endblock content%}
+
