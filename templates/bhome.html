@@ -19,16 +19,28 @@
             <div class="row">
                 <div class="col-md-1"></div>
                 <div class="col-md-2">{{form.croptype.label}}{{form.croptype(class_="form-control")}}</div>
-                <div class="col-md-3">{{form.state.label}}{{form.state(class_="form-control")}}</div>
-                <div class="col-md-3">{{form.sortby.label}}{{form.sortby(class_="form-control")}}</div>
-                <div class="col-md-2"><br>{{form.submit(class_="btn btn-primary")}}</div>
+                <div class="col-md-2">{{form.state.label}}{{form.state(class_="form-control")}}</div>
+                <div class="col-md-2">{{form.sortby.label}}{{form.sortby(class_="form-control")}}</div>
+                <div class="col-md-2">{{form.quantity.label}}{{form.quantity(class_="form-control")}}</div>
+
+                <div class="col-md-2">
+                    {% if session.get('stated') %}
+                     <a href="/bhome" onclick="return confirmation();"><button class="btn btn-primary">RESET</button></a>
+                    {% else%}
+                    <br>
+                    {% endif %}
+                    {{form.submit(class_="btn btn-primary")}}
+                </div>
 
             </div>
+<br>
                 </form>
 
         <section class="clean-block clean-form dark">
+
             <div class="container">
                 <div class="block-heading">
+                                <h2 style="text-align:center;" >RESULTS</h2>
                 </div>
                 {%for crop in b%}
 

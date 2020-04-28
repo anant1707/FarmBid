@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -69,7 +69,7 @@ def register():
             cursor=conn.cursor()
             result=request.form.to_dict()
             result['email']=form.data['email'].lower()
-            form.image.data.save(os.path.join(os.getcwd(),'static/media/profile_image',form.data['email'].lower()))
+
             regdata=[]
             for key,value in result.items():
                 if(key=='submit' or key=='cpassword' or key=='csrf_token'):
@@ -148,6 +148,10 @@ def profile():
     session.pop('quantity', None)
     session.pop('crop',None)
 
+    session.pop('stated', None)
+    session.pop('crop', None)
+    session.pop('quantity', None)
+
     if (session.get('img')):
         os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
         session.pop('img', None)
@@ -157,11 +161,11 @@ def profile():
 
 @app.route('/updateprofile',methods=['GET','POST'])
 def updateprofile():
+
     if (not session.get('logged-in')):
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
-
-    session['up']=0
+        session['up']=0
     cursor=conn.cursor()
     form=UpdateForm()
     email=session['email']
@@ -173,9 +177,19 @@ def updateprofile():
         session.pop('list',None)
         session.pop('value',None)
         session.pop('state',None)
+        session.pop('mystate', None)
+
+
         flash("Update Successfull!", "success")
         return redirect('profile')
     else:
+        session.pop('value', None)
+        session.pop('quantity', None)
+        session.pop('crop', None)
+
+        session.pop('stated', None)
+        session.pop('crop', None)
+        session.pop('quantity', None)
         form.first_name.data=dict1['first_name']
         form.last_name.data = dict1['last_name']
         form.pincode.data=dict1['pincode']
@@ -190,6 +204,7 @@ def updateimg():
         flash('LOGIN TO CONTINUE', 'danger')
         return redirect(url_for('logout'))
 
+
     session['up'] = 0
     form=ImgForm()
     if request.method == 'POST':
@@ -199,6 +214,13 @@ def updateimg():
             return redirect(url_for('profile'))
 
     else:
+        session.pop('value', None)
+        session.pop('quantity', None)
+        session.pop('crop', None)
+
+        session.pop('stated', None)
+        session.pop('crop', None)
+        session.pop('quantity', None)
         full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
         return render_template('updateimg.html',form=form,dp=full_filename)
 
@@ -290,7 +312,13 @@ def changepass():
             else:
                 flash('Enter Correct old password', 'danger')
                 return redirect(url_for('changepass'))
+    session.pop('value', None)
+    session.pop('quantity', None)
+    session.pop('crop', None)
 
+    session.pop('stated', None)
+    session.pop('crop', None)
+    session.pop('quantity', None)
     return render_template('newpass.html',form=form,title="Change Password")
 
 
@@ -323,13 +351,24 @@ def logout():
     session.pop('logged-in', False)
     session.pop('phone', None)
     session.pop('username', None)
-    session.pop('state', None)
+
     session.pop('list', None)
     session.pop('value',None)
-    session.pop('crop',None)
+
     session.pop('up', None)
     session.pop('quantity', None)
     session.pop('description', None)
+    session.pop('fcroplist', None)
+    session.pop('fstatelist', None)
+
+    session.pop('stated', None)
+    session.pop('crop',None)
+    session.pop('quantity', None)
+    session.pop('state', None)
+
+    session.pop('mystate', None)
+
+
     if(session.get('img')):
         os.remove(os.path.join(os.getcwd(), 'static/media/temp',session['img']))
         session.pop('img', None)
@@ -615,10 +654,13 @@ def fhome():
     cursor=conn.cursor()
     dict1=dataret(session['email'])
     us=str(session['username'])
-    cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where owned='{us}'")
+    dt=datetime.date.today().isoformat()
+    cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where owned='{us}' and enddate>='{dt}'")
+
     a=cursor.fetchall()
     #list of tuples
     print(a)
+    cursor.execute( f"delete from cropinfo where enddate<'{dt}'")
     i=0
     return render_template('fhome.html',form=form,b=a,dict1=dict1,i=i)
 @app.route('/bhome',methods=['GET','POST'])
@@ -631,58 +673,105 @@ def bhome():
     if (not session['username'][0] == 'B'):
         flash('URL NOT FOUND', 'danger')
         return redirect(url_for('profile'))
+
+
+
     form = SearchForm()
     if request.method == 'POST':
         if form.is_submitted():
-            session['state'] = form.state.data.title()
-            session['sortby'] = form.state.data
-            session['crop'] = form.croptype.data.title()
-            return redirect(url_for('bhome'))
 
+            d1=dict(session['fstatelist'])
+            d2=dict(session['fcroplist'])
+            session['stated'] = str(d2[form.state.data]).title()
+
+            session['quantity']=form.quantity.data
+            session['crop'] = str(d1[form.croptype.data]).title()
+            return redirect(url_for('bhome',stby=form.sortby.data))
     cursor = conn.cursor()
     dict1 = dataret(session['email'])
-    if (session.get('state')):
-        state=session['state']
+    if (session.get('stated')):
+        state=session['stated']
         crop=session['crop']
-        sortby=session['sortby']
+        sortby=request.args['stby']
 
-        cursor.execute("select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where ")
-    cursor.execute("select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo")
-    a = cursor.fetchall()
-    Y['statename'] = Y['statename'].str.lower()
-    X['State'] = X['State'].str.lower()
-    dict1 = dataret(session['email'])
-    pincode = dict1['pincode']
-    state = Y['statename'].where(Y['pincode'] == pincode).unique()
-    print(state[1])
-    session['mystate'] = state[1]
-    cursor.execute("select distinct crop from cropinfo")
-    croplist=cursor.fetchall()
-    cclist=[]
-    for i in croplist:
-        cclist.append(i[0])
-    clist=list(X['Crop'].dropna().unique())
-    clist.extend(cclist)
-    croplist=list(set(clist))
-    statelist=list(X['State'].dropna().unique())
+        quantity=session['quantity']
+        l1=(session['fcroplist'])
+        l2=(session['fstatelist'])
+        l1[0]=list(l1[0])
+        l1[0][1]=crop.title()
+        l1[0]=tuple(l1[0])
+        l2[0]=list(l2[0])
+        l2[0][1] = state.title()
+        l2[0] = tuple(l2[0])
+        l2[0] = tuple(l2[0])
+        l1=list(l1)
+        l2=list(l2)
+        form.croptype.choices=l1
+        form.quantity.data=int(quantity)
+        form.state.choices=l2
+        import datetime
+        dt = datetime.date.today()
+        dt = dt.isoformat()
 
-    fcroplist=[]
-    i=2
-    fcroplist.append((1,'NA'))
-    for j in croplist:
-        fcroplist.append((i,j))
-        i+=1
-    fstatelist=[]
-    i = 2
-    fstatelist.append((1, 'NA'))
-    for j in statelist:
-        fstatelist.append((i, j.title()))
-        i += 1
-    form.croptype.choices = fcroplist
-    form.state.choices=fstatelist
-    session['fcroplist']=fcroplist
-    session['fstatelist']=fstatelist
-    return render_template('bhome.html', form=form, b=a, dict1=dict1)
+        cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}'")
+        a = cursor.fetchall()
+
+
+
+
+
+        return render_template('bhome.html', form=form, b=a)
+
+
+
+
+    else:
+        session.pop('sortby', None)
+        session.pop('stated', None)
+        session.pop('crop', None)
+        session.pop('quantity', None)
+        import datetime
+        dt=datetime.date.today()
+        dt=dt.isoformat()
+
+
+        cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}'")
+        a = cursor.fetchall()
+        Y['statename'] = Y['statename'].str.lower()
+        X['State'] = X['State'].str.lower()
+        dict1 = dataret(session['email'])
+        pincode = dict1['pincode']
+        state = Y['statename'].where(Y['pincode'] == pincode).unique()
+        print(state[1])
+        session['mystate'] = state[1]
+        cursor.execute("select distinct crop from cropinfo")
+        croplist=cursor.fetchall()
+        cclist=[]
+        for i in croplist:
+            cclist.append(i[0])
+        clist=list(X['Crop'].dropna().unique())
+        clist.extend(cclist)
+        croplist=list(set(clist))
+        statelist=list(X['State'].dropna().unique())
+
+        fcroplist=[]
+        i=2
+        fcroplist.append((1,'NA'))
+        for j in croplist:
+            fcroplist.append((i,j))
+            i+=1
+        fstatelist=[]
+        i = 2
+        fstatelist.append((1, 'NA'))
+        for j in statelist:
+            fstatelist.append((i, j.title()))
+            i += 1
+        form.croptype.choices = fcroplist
+        form.state.choices=fstatelist
+        session['fcroplist']=fcroplist
+        session['fstatelist']=fstatelist
+        form.quantity.data=0
+        return render_template('bhome.html', form=form, b=a, dict1=dict1)
 
 if(__name__== '__main__'):
         app.run(debug=True)

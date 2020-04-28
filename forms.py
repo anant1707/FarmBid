@@ -89,5 +89,6 @@ class SearchForm(Form):
    croptype = SelectField('CROP TYPE', coerce=int)
    state= SelectField('STATE', coerce=int)
    sortby=SelectField('SORT BY',choices=[(1,'NA'),(2,'DISTANCE'),(3,'PRICE-LOW TO HIGH'),(4,'PRICE-HIGH TO LOW')])
+   quantity=StringField("QUANTITY",validators=[DataRequired()])
    submit = SubmitField("VIEW RESULTS")
 
