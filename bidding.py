@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -399,7 +399,7 @@ def upload():
             year_=str(year_)
             state=session['state']
             state=str(state)
-            state=state.capitalize()
+            state=state.title()
             #session.pop('state',None)
             X=np.array([year_,croptype,state]).reshape(1,-1)
             print(type(croptype))
@@ -578,7 +578,7 @@ def newcrop():
     crop=session['crop']
     baseprice=session['value']
     quantity=int(session['quantity'])
-    baseprice=str(baseprice)
+    baseprice=float(baseprice)
     description=session['description']
     crop=str(crop)
     crop=crop.title()
@@ -590,14 +590,14 @@ def newcrop():
     state=state.lower()
     state=state.title()
 
-    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity,description,enddate,state) VALUES('{session['username']}','{crop}','{baseprice}',{quantity},'{description}','{dat}','{state}');")
+    cursor.execute(f"INSERT INTO cropinfo(owned, crop, baseprice, quantity,description,enddate,state) VALUES('{session['username']}','{crop}',{baseprice},{quantity},'{description}','{dat}','{state}');")
     conn.commit()
     cursor.close()
     cursor = conn.cursor()
 
     us = str(session['username'])
 
-    cursor.execute(f"select cropid from cropinfo where owned='{us}' AND crop='{crop}' AND baseprice='{baseprice}' ")
+    cursor.execute(f"select cropid from cropinfo where owned='{us}' AND crop='{crop}' AND baseprice={baseprice} ")
     a = cursor.fetchone()
     a=a[0]
     os.rename(os.path.join(os.getcwd(), 'static/media/temp',session['img']), os.path.join(os.getcwd(), 'static/media/temp',str(a)))
@@ -913,7 +913,7 @@ def viewcrop():
             cursor.execute(f"delete from bidding where bidid={buyid}")
             conn.commit()
 
-        cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity) VALUES ({id}, '{byer}', '{bid}','{dt}',{quantity} );")
+        cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity) VALUES ({id}, '{byer}', {bid},'{dt}',{quantity} );")
         conn.commit()
         cursor.close()
         session.pop('stated', None)
