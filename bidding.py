@@ -406,7 +406,8 @@ def upload():
             print(type(state))
             cur = conn.cursor()
             owned = str(session['username'])
-            cur.execute(f"select cropid from cropinfo where owned='{owned}' and crop='{croptype}'")
+            dt = datetime.date.today().isoformat()
+            cur.execute(f"select cropid from cropinfo where owned='{owned}' and crop='{croptype}' and enddate>='{dt}'")
             t = cur.fetchone()
             if (t is not None):
                 flash("You have already registered this crop", 'danger')
@@ -498,7 +499,8 @@ def addcrop():
                 return redirect(url_for('upload'))
             cur = conn.cursor()
             owned = str(session['username'])
-            cur.execute(f"select cropid from cropinfo where owned='{owned}' and crop='{cro}'")
+            dt = datetime.date.today().isoformat()
+            cur.execute(f"select cropid from cropinfo where owned='{owned}' and crop='{cro}' and enddate>='{dt}'")
             t = cur.fetchone()
             if (t is not None):
                 flash("You have already registered this crop", 'danger')
@@ -660,7 +662,7 @@ def fhome():
     a=cursor.fetchall()
     #list of tuples
     print(a)
-    cursor.execute( f"delete from cropinfo where enddate<'{dt}'")
+
     i=0
     return render_template('fhome.html',form=form,b=a,dict1=dict1,i=i)
 @app.route('/bhome',methods=['GET','POST'])
