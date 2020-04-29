@@ -20,6 +20,8 @@
                 <div class="block-heading">
                     <h2 class="text-info">YOUR CROPS OPEN FOR BIDDING</h2>
                 </div>
+                {%if b | length > 0%}
+
                 {%for crop in b%}
 
                 <div class="row">
@@ -70,6 +72,11 @@
 <br>
                 <br>
             {% endfor %}
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+            {%endif%}
                  <script type="text/javascript">
                 function confirmation()
                 {

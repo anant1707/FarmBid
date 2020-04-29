@@ -21,54 +21,80 @@
                     <h2 class="text-info">CROP DETAILS</h2>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-8">
 
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    
+                <div class="media"><img class="mr-3" height="150" width="150" border-radius="50%" src="static/media/cropimg/{{crop[0]}}">
+                
 
-  <div class="card" style="width:inherit">
-   <!-- <img class="card-img" src="static/media/cropimg/{{crop[0]}}" alt="Card image" style="width:100%">-->
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-3"><div class="media"><img class="mr-3" height="200" width="200"  src="static/media/cropimg/{{crop[0]}}"></div></div>
-              <div class="col-md-2"></div>
-            <div class="col-md-3"><br><br><br><h2 class="card-title" >{{crop[1]}}</h2></div>
-        </div>
-        <br>
-        <p>{{crop[4]}}</p>
-      <div >
-                        <table class="table">
-                            <tr>
-                                    <th>Bidding ends on:</th>
-                                    <th>{{crop[5]}}</th>
-                                </tr>
-                            <tr>
-                                    <th>Base Price</th>
-                                    <th>{{crop[2]}}</th>
-                                </tr>
+                    <div class="media-body">
+                        <br>
+                        <br>
 
-                        </table>
-
-          </div>
-  </div>
-
-
-    </div>
-
-  </div>
-
-
-
+                        <h2> &nbsp; &nbsp; &nbsp;{{crop[1]}}</h2>
+                    </div>
 </div>
+            <br><br>
+                    <div class="table responsive">                                                                                                                                                                                                                                         
+                <table>
+                    <tr>
+                      <td><b>
+                        Description
+                      </b>
+                      </td>
+                      <td>
+                        {{crop[4]}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>
+                        End-Date
+                      </b>
+                      </td>
+                      <td>
+                        {{crop[5]}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>
+                        State
+                      </b>
+                      </td>
+                      
+                      <td>
+                        {{crop[6]}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>
+                        Base Price
+                      </b>
+                      </td>
+                      <td>
+                        {{crop[2]}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>
+                        SELLER
+                      </b>
+                      </td>
+                      <td>
+                        {{seller}}
+                      </td>
+                    </tr>
 
-<br>
-                <br>
-
-
-                 <script type="text/javascript">
+                </table>
+            </div>
+<button class="btn btn-primary" style="width:100%" data-toggle="modal" data-target="#myModal"> ADD BID </button>
+            </div>
+<div>
+                <script type="text/javascript">
                 function confirmation()
                 {
-                  var a=confirm("Are you sure you dont want to add your bid")
+                  var a=confirm("Are you sure you dont want to add your bid?")
                   return a;
 
                 }
@@ -76,11 +102,20 @@
 
               </script>
 
-
-            </div>
-
-<form method="POST" action="{{url_for('viewcrop',a=crop[0])}}" enctype="multipart/form-data">
- <h2 style="text-align:center;color:blue;">ADD YOUR BID</h2>
+  <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">ADD YOUR BID HERE</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form method="POST" action="{{url_for('viewcrop',a=crop[0])}}" enctype="multipart/form-data">
     <br>
                 {{ form.csrf_token }}
                     {% for field in form%}
@@ -95,11 +130,22 @@
                     </div>
                     {%endfor%}
                  </form>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
-            <a href="{{url_for('bhome')}}"  style="text-align:center;"><button class="btn btn-primary"> BACK </button></a>
+            </div>
+</section>
 
 
-        </section>
+                    
     </main>
    {%endblock content%}
 

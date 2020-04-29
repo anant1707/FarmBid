@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -321,7 +321,6 @@ def changepass():
     session.pop('quantity', None)
     return render_template('newpass.html',form=form,title="Change Password")
 
-
 @app.route('/newpass', methods=['GET', 'POST'])
 def newpass():
 
@@ -374,7 +373,6 @@ def logout():
         session.pop('img', None)
 
     return redirect(url_for('home'))
-
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
@@ -460,7 +458,6 @@ def upload():
     form.croptype.choices = li
 
     return render_template('cropupload.html',form=form)
-
 
 @app.route('/addcrop',methods=['GET','POST'])
 def addcrop():
@@ -559,7 +556,6 @@ def changebp():
         form.bp.data=value
         return render_template('changeprice.html',form=form)
 
-
 @app.route('/newcrop',methods=['GET','POST'])
 def newcrop():
     if (not session.get('logged-in')):
@@ -612,7 +608,6 @@ def newcrop():
 
     return render_template('newcrop.html',form=form ,crop=crop,value=baseprice,id=a,quantity=quantity)
 
-
 @app.route('/deletecrop', methods=['GET', 'POST'])
 def deletecrop():
     if (not session.get('logged-in')):
@@ -634,8 +629,6 @@ def deletecrop():
         conn.commit()
         cursor.close()
         return redirect(url_for('fhome'))
-
-
 
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
@@ -666,6 +659,7 @@ def fhome():
 
 
     return render_template('fhome.html',form=form,b=a,dict1=dict1)
+
 @app.route('/bhome',methods=['GET','POST'])
 def bhome():
     X=H
@@ -872,7 +866,6 @@ def bhomereset():
     session.pop('fcroplist', None)
     return redirect(url_for('bhome'))
 
-
 @app.route('/viewcrop',methods=['GET','POST'])
 def viewcrop():
     form=ViewCropForm()
@@ -931,12 +924,14 @@ def viewcrop():
     dt = datetime.date.today()
     dt = dt.isoformat()
 
-    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid={a} and enddate>='{dt}' ")
+    cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state,owned from cropinfo where cropid={a} and enddate>='{dt}' ")
 
     crop=cursor.fetchone()
-
-    return render_template('viewcrop.html',crop=crop,form=form)
-
+    sellerid=crop[7]
+    cursor.execute(f"SELECT first_name,last_name from userinfo where username = '{sellerid}'")
+    seller=cursor.fetchone()
+    seller=seller[0]+" "+seller[1]
+    return render_template('viewcrop.html',crop=crop,form=form,seller=seller)
 
 @app.route('/addtocart',methods=['GET','POST'])
 def addtocart():
@@ -984,12 +979,11 @@ def viewcart():
     for i in cid:
         x=i[0]
         cursor.execute(
-            f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid={x} and enddate>='{dt}'")
+            f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where cropid={x} and enddate>='{dt}'")
         s=cursor.fetchone()
         a.append(s)
 
     return render_template('buyercart.html',form=EmptyForm(),b=a)
-
 
 @app.route('/removecart', methods=['GET', 'POST'])
 def removecart():
@@ -1010,7 +1004,6 @@ def removecart():
     flash('Item Removed','info')
 
     return redirect(url_for('viewcart'))
-
 
 if(__name__== '__main__'):
         app.run(debug=True)

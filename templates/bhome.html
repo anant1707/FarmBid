@@ -44,6 +44,7 @@
                 <div class="block-heading">
                                 <h2 style="text-align:center;" >RESULTS</h2>
                 </div>
+                {%if b | length > 0%}
                 <div class="table responsive">
                 <table>
                     <th>
@@ -82,7 +83,11 @@
                     {% endfor %}
                 </table>
             </div>
-
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+            {%endif%}
     </div>
   </section>
             
