@@ -705,10 +705,6 @@ def bhome():
         sortby=int(sortby)
         quantity=session['quantity']
         q= f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity}"
-        print(q + f"""JOIN distances di ON
-                                                    cropinfo.state = di.state2 
-                                                    where di.state1='{session["mystate"]}' and crop='{crop}' and state='{state}'
-                                                    order by distance asc;""")
         if (sortby == 1 or sortby == 5):
             if state == 'NA':
                 if crop == 'NA':
@@ -731,33 +727,33 @@ def bhome():
         elif sortby == 2:
                 if state == 'NA':
                     if crop == 'NA':
-                        cursor.execute(q + f""" JOIN distances di 
-                                            ON
-                                            cropinfo.state = di.state2
-                                            where di.state1='{session["mystate"]}'
-                                            order by distance asc;""")
+                        cursor.execute(f"""select cropid,crop,baseprice,quantity,description,enddate,state 
+                from cropinfo JOIN distances di 
+                ON  cropinfo.state = di.state2 
+                where di.state1='{session["mystate"]}'
+                order by distance asc;""")
                         a = cursor.fetchall()
                     else:
-                        cursor.execute(q + f"""JOIN distances di
-                                                ON
-                                                cropinfo.state = di.state2 
-                                                where di.state1='{session["mystate"]}' and crop='{crop}'
-                                                order by distance asc;""")
+                        cursor.execute(f"""select cropid,crop,baseprice,quantity,description,enddate,state 
+                from cropinfo JOIN distances di 
+                ON  cropinfo.state = di.state2 
+                where di.state1='{session["mystate"]}'and crop='{crop}'
+                order by distance asc;""")
                         a = cursor.fetchall()
                 else:
                     if crop == 'NA':
-                        cursor.execute(q + f"""JOIN distances di
-                                            ON
-                                            cropinfo.state = di.state2 
-                                            where di.state1='{session["mystate"]}' and state='{state}'
-                                            order by distance asc;""")
+                        cursor.execute(f"""select cropid,crop,baseprice,quantity,description,enddate,state 
+                from cropinfo JOIN distances di 
+                ON  cropinfo.state = di.state2 
+                where di.state1='{session["mystate"]}' and state='{state}'
+                order by distance asc;""")
                         a = cursor.fetchall()
                     else:
-                        cursor.execute(q + f"""JOIN distances di
-                                            ON
-                                            cropinfo.state = di.state2 
-                                            where di.state1='{session["mystate"]}' and crop='{crop}' and state='{state}'
-                                            order by distance asc;""")
+                        cursor.execute(f"""select cropid,crop,baseprice,quantity,description,enddate,state 
+                from cropinfo JOIN distances di 
+                ON  cropinfo.state = di.state2 
+                where di.state1='{session["mystate"]}'and crop='{crop}' and state='{state}'
+                order by distance asc;""")
 
                         a = cursor.fetchall()
         elif sortby == 3:
