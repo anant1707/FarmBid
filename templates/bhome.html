@@ -25,10 +25,10 @@
 
                 <div class="col-md-2">
                     {% if session.get('stated') %}
-                     <a href="/bhome" onclick="return confirmation();"><button class="btn btn-primary">RESET</button></a>
-                    {% else%}
-                    <br>
+                     <a href="{{url_for('bhomereset')}}"><button class="btn btn-primary">RESET </button></a>
+
                     {% endif %}
+
                     {{form.submit(class_="btn btn-primary")}}
                 </div>
 

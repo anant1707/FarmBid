@@ -730,6 +730,7 @@ def bhome():
 
 
     else:
+        form = SearchForm()
         session.pop('sortby', None)
         session.pop('stated', None)
         session.pop('crop', None)
@@ -776,6 +777,16 @@ def bhome():
         session['fstatelist']=fstatelist
         form.quantity.data=0
         return render_template('bhome.html', form=form, b=a, dict1=dict1)
+
+@app.route('/bhomereset')
+def bhomereset():
+    session.pop('sortby', None)
+    session.pop('stated', None)
+    session.pop('crop', None)
+    session.pop('quantity', None)
+    session.pop('fstatelist', None)
+    session.pop('fcroplist', None)
+    return redirect(url_for('bhome'))
 
 if(__name__== '__main__'):
         app.run(debug=True)
