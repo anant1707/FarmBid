@@ -679,10 +679,6 @@ def bhome():
     form = SearchForm()
     if request.method == 'POST':
         if form.is_submitted():
-            session.pop('stated', None)
-            session.pop('crop', None)
-            session.pop('quantity', None)
-            session.pop('sortby', None)
 
             d1=dict(session['fstatelist'])
             d2=dict(session['fcroplist'])
