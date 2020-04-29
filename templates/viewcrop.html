@@ -15,36 +15,11 @@
             {% endfor %}
             {% endif %}
             {% endwith %}
-        <form method="POST" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-2">{{form.croptype.label}}{{form.croptype(class_="form-control")}}</div>
-                <div class="col-md-2">{{form.state.label}}{{form.state(class_="form-control")}}</div>
-                <div class="col-md-2">{{form.sortby.label}}{{form.sortby(class_="form-control")}}</div>
-                <div class="col-md-2">{{form.quantity.label}}{{form.quantity(class_="form-control")}}</div>
-
-                <div class="col-md-2">
-                    {% if session.get('stated') %}
-                  <a href="{{url_for('bhomereset')}}">RESET </a>
-
-                    {% else%}
-                    <br>
-                    {% endif %}
-                    <br>
-                    {{form.submit(class_="btn btn-primary")}}
-                </div>
-
-            </div>
-<br>
-                </form>
-
         <section class="clean-block clean-form dark">
-
             <div class="container">
                 <div class="block-heading">
-                                <h2 style="text-align:center;" >RESULTS</h2>
+                    <h2 class="text-info">CROP DETAILS</h2>
                 </div>
-                {%for crop in b%}
 
                 <div class="row">
                     <div class="col-md-2"></div>
@@ -72,31 +47,59 @@
                                     <th>{{crop[2]}}</th>
                                 </tr>
 
-
                         </table>
-        <p style="text-align:center">
-      <a href="{{url_for('viewcrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">VIEW CROP</button></a>
-        <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-danger">SAVE FOR LATER</button></a>
-        </p>
-    </div>
+
+          </div>
   </div>
 
 
     </div>
 
   </div>
+
+
 
 </div>
 
 <br>
                 <br>
-            {% endfor %}
+
+
                  <script type="text/javascript">
                 function confirmation()
                 {
-                  var a=confirm("Are you sure you want to update ?")
+                  var a=confirm("Are you sure you dont want to add your bid")
                   return a;
 
                 }
+
+
               </script>
-{% endblock content%}
+
+
+            </div>
+
+<form method="POST" action="{{url_for('viewcrop',a=crop[0])}}" enctype="multipart/form-data">
+ <h2 style="text-align:center;color:blue;">ADD YOUR BID</h2>
+    <br>
+                {{ form.csrf_token }}
+                    {% for field in form%}
+                    <div class="form-group">
+                        {%if field.type=="SubmitField"%}
+                        {{field(class_="btn btn-primary btn-block")}}
+                        {%else%}
+                        {%if field.label.text!="CSRF Token"%}
+                        {{field.label}} {{field(class_="form-control")}}
+                        {%endif%}
+                        {%endif%}
+                    </div>
+                    {%endfor%}
+                 </form>
+
+            <a href="{{url_for('bhome')}}"  style="text-align:center;"><button class="btn btn-primary"> BACK </button></a>
+
+
+        </section>
+    </main>
+   {%endblock content%}
+

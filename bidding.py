@@ -3,7 +3,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm
+from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm,ViewCropForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -706,15 +706,15 @@ def bhome():
         quantity=session['quantity']
         if state=='NA':
             if crop=='NA':
-                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}'")
+                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}'")
             else:
-                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}' and crop='{crop}'")
+                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and crop='{crop}'")
 
         else :
             if crop=='NA':
-                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}' and state='{state}'")
+                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and state='{state}'")
             else:
-                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}' and crop='{crop}' and state='{state}'")
+                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and crop='{crop}' and state='{state}'")
         a=cursor.fetchall()
 
         l1=(session['fcroplist'])
@@ -796,6 +796,36 @@ def bhomereset():
     session.pop('fstatelist', None)
     session.pop('fcroplist', None)
     return redirect(url_for('bhome'))
+
+
+@app.route('/viewcrop',methods=['GET','POST'])
+def viewcrop():
+    form=ViewCropForm()
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0]=='B'):
+        flash('URL NOT FOUND','danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('a')):
+        flash('Nothing selected to view details of', 'danger')
+        return redirect(url_for('profile'))
+    if request.method=='POST':
+        session.pop('sortby', None)
+        session.pop('stated', None)
+        session.pop('crop', None)
+        session.pop('quantity', None)
+
+        return redirect(url_for('bhome'))
+
+    a=request.args.get('a')
+    cursor=conn.cursor()
+    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid='{a}' ")
+
+    crop=cursor.fetchone()
+
+    return render_template('viewcrop.html',crop=crop,form=form)
+
 
 if(__name__== '__main__'):
         app.run(debug=True)

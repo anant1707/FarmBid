@@ -92,3 +92,7 @@ class SearchForm(Form):
    quantity=StringField("QUANTITY",validators=[DataRequired()])
    submit = SubmitField("VIEW RESULTS")
 
+class ViewCropForm(Form):
+   price=quantity=StringField("BID PRICE",validators=[DataRequired()])
+   quantity = StringField("QUANTITY", validators=[DataRequired()])
+   submit = SubmitField("BID NOW")
