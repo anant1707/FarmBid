@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -699,24 +699,99 @@ def bhome():
         import datetime
         dt = datetime.date.today()
         dt = dt.isoformat()
-
         state=session['stated']
         crop=session['crop']
         sortby=session['sortby']
+        sortby=int(sortby)
         quantity=session['quantity']
-        if state=='NA':
-            if crop=='NA':
-                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}'")
+        q= f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity}"
+        print(q + f"""JOIN distances di ON
+                                                    cropinfo.state = di.state2 
+                                                    where di.state1='{session["mystate"]}' and crop='{crop}' and state='{state}'
+                                                    order by distance asc;""")
+        if (sortby == 1 or sortby == 5):
+            if state == 'NA':
+                if crop == 'NA':
+                    cursor.execute(q)
+                    a = cursor.fetchall()
+                    a.reverse()
+                else:
+                    cursor.execute(q + f"and crop='{crop}'")
+                    a = cursor.fetchall()
+                    a.reverse()
             else:
-                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and crop='{crop}'")
+                if crop == 'NA':
+                    cursor.execute(q + f"and state='{state}'")
+                    a = cursor.fetchall()
+                    a.reverse()
+                else:
+                    cursor.execute(q + f"and crop='{crop}' and state='{state}'")
+                    a=cursor.fetchall()
+                    a.reverse()
+        elif sortby == 2:
+                if state == 'NA':
+                    if crop == 'NA':
+                        cursor.execute(q + f""" JOIN distances di 
+                                            ON
+                                            cropinfo.state = di.state2
+                                            where di.state1='{session["mystate"]}'
+                                            order by distance asc;""")
+                        a = cursor.fetchall()
+                    else:
+                        cursor.execute(q + f"""JOIN distances di
+                                                ON
+                                                cropinfo.state = di.state2 
+                                                where di.state1='{session["mystate"]}' and crop='{crop}'
+                                                order by distance asc;""")
+                        a = cursor.fetchall()
+                else:
+                    if crop == 'NA':
+                        cursor.execute(q + f"""JOIN distances di
+                                            ON
+                                            cropinfo.state = di.state2 
+                                            where di.state1='{session["mystate"]}' and state='{state}'
+                                            order by distance asc;""")
+                        a = cursor.fetchall()
+                    else:
+                        cursor.execute(q + f"""JOIN distances di
+                                            ON
+                                            cropinfo.state = di.state2 
+                                            where di.state1='{session["mystate"]}' and crop='{crop}' and state='{state}'
+                                            order by distance asc;""")
 
-        else :
-            if crop=='NA':
-                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and state='{state}'")
+                        a = cursor.fetchall()
+        elif sortby == 3:
+            if state == 'NA':
+                if crop == 'NA':
+                    cursor.execute(q + " order by baseprice asc;")
+                    a = cursor.fetchall()
+                else:
+                    cursor.execute(q + f"and crop='{crop}'" + " order by baseprice asc;")
+                    a = cursor.fetchall()
+
             else:
-                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and crop='{crop}' and state='{state}'")
-        a=cursor.fetchall()
+                if crop == 'NA':
+                    cursor.execute(q + f"and state='{state}'" + " order by baseprice asc;")
+                    a = cursor.fetchall()
+                else:
+                    cursor.execute(q + f"and crop='{crop}' and state='{state}'" + "order by baseprice asc")
+                    a = cursor.fetchall()
 
+        elif sortby == 4:
+            if state == 'NA':
+                if crop == 'NA':
+                    cursor.execute(q + " order by baseprice desc;")
+                    a = cursor.fetchall()
+                else:
+                    cursor.execute(q + f"and crop='{crop}'" + " order by baseprice desc;")
+                    a = cursor.fetchall()
+            else:
+                if crop == 'NA':
+                    cursor.execute(q + f"and state='{state}'" + " order by baseprice desc;")
+                    a = cursor.fetchall()
+                else:
+                    cursor.execute(q + f"and crop='{crop}' and state='{state}'" + "order by baseprice desc;")
+                    a = cursor.fetchall()
         l1=(session['fcroplist'])
         l2=(session['fstatelist'])
         l1[0]=list(l1[0])
@@ -816,7 +891,37 @@ def viewcrop():
         print(id)
         bid=form.price.data
         quantity=form.quantity.data
+        byer = session['username']
+        cursor = conn.cursor()
+        cursor.execute(f"select baseprice,quantity from cropinfo where cropid='{id}';")
+        x=cursor.fetchone()
 
+
+
+        if float(bid)<float(x[0]):
+            flash('YOUR BID CANT BE LESS THAN BASEPRICE','danger')
+            return redirect(url_for('viewcrop',a=id))
+        if int(quantity)> int(x[1]):
+            flash('QUANTITY NOT AVAILABLE FOR THE CROP', 'danger')
+            return redirect(url_for('viewcrop', a=id))
+        import datetime
+        dt = datetime.date.today()
+        dt = dt.isoformat()
+
+        cursor.execute(f"select bidid from bidding where cropid={id} and buyer='{byer}';")
+
+        y = cursor.fetchone()
+        if y is not None:
+            buyid=y[0]
+            flash("BID UPDATED",'success')
+            cursor.execute(f"delete from bidding where bidid={buyid}")
+            conn.commit()
+
+        cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity) VALUES ({id}, '{byer}', '{bid}','{dt}',{quantity} );")
+        conn.commit()
+        cursor.close()
+        session.pop('stated', None)
+        flash('BID PLACED SUCCESSFULLY','success')
 
         return redirect(url_for('bhome'))
 
@@ -826,7 +931,7 @@ def viewcrop():
     dt = datetime.date.today()
     dt = dt.isoformat()
 
-    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid='{a}' and enddate>='{dt}' ")
+    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid={a} and enddate>='{dt}' ")
 
     crop=cursor.fetchone()
 
@@ -841,6 +946,5 @@ if(__name__== '__main__'):
 files = ['file1.txt', 'file2.txt', 'file3.txt']
 for f in files:
     shutil.copy(f, 'dest_folder')
-
 os.remove(path)
 rename(fname, fname.replace(name, '', 1))"""
