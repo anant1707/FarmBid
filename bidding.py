@@ -664,8 +664,8 @@ def fhome():
     #list of tuples
     print(a)
 
-    i=0
-    return render_template('fhome.html',form=form,b=a,dict1=dict1,i=i)
+
+    return render_template('fhome.html',form=form,b=a,dict1=dict1)
 @app.route('/bhome',methods=['GET','POST'])
 def bhome():
     X=H
@@ -912,6 +912,7 @@ def viewcrop():
             flash("BID UPDATED",'success')
             cursor.execute(f"delete from bidding where bidid={buyid}")
             conn.commit()
+        bid=float(bid)
 
         cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity) VALUES ({id}, '{byer}', {bid},'{dt}',{quantity} );")
         conn.commit()
@@ -932,6 +933,80 @@ def viewcrop():
     crop=cursor.fetchone()
 
     return render_template('viewcrop.html',crop=crop,form=form)
+
+
+@app.route('/addtocart',methods=['GET','POST'])
+def addtocart():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'B'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('a')):
+        flash('Nothing selected to add in cart', 'danger')
+        return redirect(url_for('profile'))
+    buyer=session['username']
+    cropid=request.args.get('a')
+    cursor=conn.cursor()
+    cursor.execute(f"select cropid from cart where cropid='{cropid}' and buyer='{buyer}'")
+    a=cursor.fetchone()
+    if a is not None:
+        flash('Crop already present in cart','success')
+    else:
+        flash('Item successfully added to cart','success')
+        cursor.execute(f"insert into cart values({cropid},'{buyer}')")
+        conn.commit()
+
+
+
+    return redirect(url_for('bhome'))
+
+@app.route('/viewcart',methods=['GET','POST'])
+def viewcart():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'B'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    cursor=conn.cursor()
+    buyer=session['username']
+    cursor.execute(f"select cropid from cart where buyer='{buyer}'")
+    cid=cursor.fetchall()
+    a=[]
+    import datetime
+    dt=datetime.date.today().isoformat()
+
+    for i in cid:
+        x=i[0]
+        cursor.execute(
+            f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid={x} and enddate>='{dt}'")
+        s=cursor.fetchone()
+        a.append(s)
+
+    return render_template('buyercart.html',form=EmptyForm(),b=a)
+
+
+@app.route('/removecart', methods=['GET', 'POST'])
+def removecart():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'B'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('a')):
+        flash('Nothing selected to add in cart', 'danger')
+        return redirect(url_for('profile'))
+
+    buyer = session['username']
+    cropid = request.args.get('a')
+    cursor = conn.cursor()
+    cursor.execute(f"delete from cart where cropid={cropid} and buyer='{buyer}'")
+    flash('Item Removed','info')
+
+    return redirect(url_for('viewcart'))
 
 
 if(__name__== '__main__'):
