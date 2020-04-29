@@ -365,7 +365,7 @@ def logout():
     session.pop('crop',None)
     session.pop('quantity', None)
     session.pop('state', None)
-
+    session.pop('sortby', None)
     session.pop('mystate', None)
 
 
@@ -679,20 +679,26 @@ def bhome():
     form = SearchForm()
     if request.method == 'POST':
         if form.is_submitted():
+            session.pop('stated', None)
+            session.pop('crop', None)
+            session.pop('quantity', None)
+            session.pop('sortby', None)
 
             d1=dict(session['fstatelist'])
             d2=dict(session['fcroplist'])
-            session['stated'] = str(d2[form.state.data]).title()
+            session['stated'] = str(d1[form.state.data]).title()
 
             session['quantity']=form.quantity.data
-            session['crop'] = str(d1[form.croptype.data]).title()
-            return redirect(url_for('bhome',stby=form.sortby.data))
+            session['crop'] = str(d2[form.croptype.data]).title()
+            session['sortby']=form.sortby.data
+
+            return redirect(url_for('bhome'))
     cursor = conn.cursor()
     dict1 = dataret(session['email'])
     if (session.get('stated')):
         state=session['stated']
         crop=session['crop']
-        sortby=request.args['stby']
+        sortby=session['sortby']
 
         quantity=session['quantity']
         l1=(session['fcroplist'])
@@ -715,7 +721,9 @@ def bhome():
 
         cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}'")
         a = cursor.fetchall()
+        session['fcroplist']=l1
 
+        session['fstatelist']=l2
 
 
 
