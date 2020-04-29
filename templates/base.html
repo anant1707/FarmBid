@@ -26,7 +26,10 @@
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/fhome">HOME</a></li>
                      <li class="nav-item" role="presentation"><a class="nav-link" href="/upload">UPLOAD</a></li>
                         {% endif %}
-
+                     {% if session['username'][0]=='B'%}
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/bhome">HOME</a></li>
+                     <li class="nav-item" role="presentation"><a class="nav-link" href="/viewcart">CART</a></li>
+                        {% endif %}
 
 
 
