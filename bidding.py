@@ -706,15 +706,15 @@ def bhome():
         quantity=session['quantity']
         if state=='NA':
             if crop=='NA':
-                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}'")
+                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity}")
             else:
-                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and crop='{crop}'")
+                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity} and crop='{crop}'")
 
         else :
             if crop=='NA':
-                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and state='{state}'")
+                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity} and state='{state}'")
             else:
-                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>='{quantity}' and crop='{crop}' and state='{state}'")
+                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity} and crop='{crop}' and state='{state}'")
         a=cursor.fetchall()
 
         l1=(session['fcroplist'])
@@ -816,7 +816,37 @@ def viewcrop():
         print(id)
         bid=form.price.data
         quantity=form.quantity.data
+        byer = session['username']
+        cursor = conn.cursor()
+        cursor.execute(f"select baseprice,quantity from cropinfo where cropid='{id}';")
+        x=cursor.fetchone()
 
+
+
+        if float(bid)<float(x[0]):
+            flash('YOUR BID CANT BE LESS THAN BASEPRICE','danger')
+            return redirect(url_for('viewcrop',a=id))
+        if int(quantity)> int(x[1]):
+            flash('QUANTITY NOT AVAILABLE FOR THE CROP', 'danger')
+            return redirect(url_for('viewcrop', a=id))
+        import datetime
+        dt = datetime.date.today()
+        dt = dt.isoformat()
+
+        cursor.execute(f"select bidid from bidding where cropid={id} and buyer='{byer}';")
+
+        y = cursor.fetchone()
+        if y is not None:
+            buyid=y[0]
+            flash("BID UPDATED",'success')
+            cursor.execute(f"delete from bidding where bidid={buyid}")
+            conn.commit()
+
+        cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity) VALUES ({id}, '{byer}', '{bid}','{dt}',{quantity} );")
+        conn.commit()
+        cursor.close()
+        session.pop('stated', None)
+        flash('BID PLACED SUCCESSFULLY','success')
 
         return redirect(url_for('bhome'))
 
@@ -826,7 +856,7 @@ def viewcrop():
     dt = datetime.date.today()
     dt = dt.isoformat()
 
-    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid='{a}' and enddate>='{dt}' ")
+    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid={a} and enddate>='{dt}' ")
 
     crop=cursor.fetchone()
 
