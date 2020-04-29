@@ -756,8 +756,9 @@ def bhome():
         dict1 = dataret(session['email'])
         pincode = dict1['pincode']
         state = Y['statename'].where(Y['pincode'] == pincode).unique()
-        print(state[1])
-        session['mystate'] = state[1]
+
+        session['mystate'] = state[1].title()
+        print(state[1].title())
         cursor.execute("select distinct crop from cropinfo")
         croplist=cursor.fetchall()
         cclist=[]
@@ -811,16 +812,21 @@ def viewcrop():
         flash('Nothing selected to view details of', 'danger')
         return redirect(url_for('profile'))
     if request.method=='POST':
-        session.pop('sortby', None)
-        session.pop('stated', None)
-        session.pop('crop', None)
-        session.pop('quantity', None)
+        id=request.args.get('a')
+        print(id)
+        bid=form.price.data
+        quantity=form.quantity.data
+
 
         return redirect(url_for('bhome'))
 
     a=request.args.get('a')
     cursor=conn.cursor()
-    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid='{a}' ")
+    import datetime
+    dt = datetime.date.today()
+    dt = dt.isoformat()
+
+    cursor.execute(  f"select cropid,crop,baseprice,quantity,description,enddate from cropinfo where cropid='{a}' and enddate>='{dt}' ")
 
     crop=cursor.fetchone()
 
