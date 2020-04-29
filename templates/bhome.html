@@ -71,15 +71,12 @@
                                     <th>Base Price</th>
                                     <th>{{crop[2]}}</th>
                                 </tr>
-                            <tr>
-                                    <th>Quantity</th>
-                                    <th>{{crop[3]}} Qtls.</th>
-                                </tr>
+
 
                         </table>
         <p style="text-align:center">
-      <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">VIEW BIDS</button></a>
-        <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-danger">DELETE CROP</button></a>
+      <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-primary">VIEW CROP</button></a>
+        <a href="{{url_for('deletecrop',a=crop[0])}}" onclick="return confirmation();"><button class="btn btn-danger">SAVE FOR LATER</button></a>
         </p>
     </div>
   </div>

@@ -629,7 +629,8 @@ def deletecrop():
         id=int(id)
         os.remove(os.path.join(os.getcwd(), 'static/media/cropimg', str(id)))
         cursor=conn.cursor()
-        cursor.execute(f"DELETE FROM cropinfo WHERE cropid={id};")
+        owned=session['username']
+        cursor.execute(f"DELETE FROM cropinfo WHERE cropid={id} and owned='{owned}';")
         conn.commit()
         cursor.close()
         return redirect(url_for('fhome'))
@@ -684,28 +685,45 @@ def bhome():
 
             d1=dict(session['fstatelist'])
             d2=dict(session['fcroplist'])
-            session['stated'] = str(d1[form.state.data]).title()
+            session['stated'] = str(d1[form.state.data])
 
             session['quantity']=form.quantity.data
-            session['crop'] = str(d2[form.croptype.data]).title()
+            session['crop'] = str(d2[form.croptype.data])
             session['sortby']=form.sortby.data
 
             return redirect(url_for('bhome'))
+
     cursor = conn.cursor()
     dict1 = dataret(session['email'])
     if (session.get('stated')):
+        import datetime
+        dt = datetime.date.today()
+        dt = dt.isoformat()
+
         state=session['stated']
         crop=session['crop']
         sortby=session['sortby']
-
         quantity=session['quantity']
+        if state=='NA':
+            if crop=='NA':
+                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}'")
+            else:
+                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}' and crop='{crop}'")
+
+        else :
+            if crop=='NA':
+                cursor.execute(f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}' and state='{state}'")
+            else:
+                cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>'{quantity}' and crop='{crop}' and state='{state}'")
+        a=cursor.fetchall()
+
         l1=(session['fcroplist'])
         l2=(session['fstatelist'])
         l1[0]=list(l1[0])
-        l1[0][1]=crop.title()
+        l1[0][1]=crop
         l1[0]=tuple(l1[0])
         l2[0]=list(l2[0])
-        l2[0][1] = state.title()
+        l2[0][1] = state
         l2[0] = tuple(l2[0])
         l2[0] = tuple(l2[0])
         l1=list(l1)
@@ -713,19 +731,8 @@ def bhome():
         form.croptype.choices=l1
         form.quantity.data=int(quantity)
         form.state.choices=l2
-        import datetime
-        dt = datetime.date.today()
-        dt = dt.isoformat()
-
-        cursor.execute( f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}'")
-        a = cursor.fetchall()
         session['fcroplist']=l1
-
         session['fstatelist']=l2
-
-
-
-
         return render_template('bhome.html', form=form, b=a)
 
 
