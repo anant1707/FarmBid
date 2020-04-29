@@ -838,7 +838,10 @@ def bhome():
         clist=list(X['Crop'].dropna().unique())
         clist.extend(cclist)
         croplist=list(set(clist))
+        croplist=sorted(croplist)
+
         statelist=list(X['State'].dropna().unique())
+        statelist=sorted(statelist)
 
         fcroplist=[]
         i=2
