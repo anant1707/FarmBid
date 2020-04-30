@@ -35,9 +35,7 @@
                     <th>
                         BUYER ID
                     </th>
-                    <th>
-                        Bidding Ends On
-                    </th>
+
                     <th>
                         Base Price
                     </th>
@@ -54,16 +52,11 @@
                         DATED
                     </th>
                     <th>
-                        ACCEPT
-                    </th>
-                    <th>
-                        DECLINE
+                        PAYMENT STATUS
                     </th>
                     {% for crop in b %}
                     <tr>
                         <td><a href="{{url_for('viewprofile',p=crop[4])}}"> {{crop[4]}}</a>
-                        </td>
-                        <td>{{crop[3]}}
                         </td>
                         <td>{{crop[2]}}
                         </td>
@@ -79,10 +72,13 @@
                         <td>
                             {{crop[7]}}
                         </td>
-                         <td><a href="{{url_for('acceptbid',a=crop[8])}}"><button class="btn btn-primary btn-sm">ACCEPT</button></a>
+                        {% if crop[10]==0%}
+                        <td><button class="btn btn-danger btn-sm">PENDING</button>
                         </td>
-                        <td><a href="{{url_for('declinebid',a=crop[8])}}"><button class="btn btn-danger btn-sm">DECLINE</button></a>
+                        {% else %}
+                        <td><button class="btn btn-danger btn-sm">{{crop[11]}}</button>
                         </td>
+                        {% endif %}
 
 
                     </tr>

@@ -3,7 +3,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm,ViewCropForm
+from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,AcceptBidForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm,ViewCropForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -353,7 +353,7 @@ def logout():
 
     session.pop('list', None)
     session.pop('value',None)
-
+    session.pop('temp',None)
     session.pop('up', None)
     session.pop('quantity', None)
     session.pop('description', None)
@@ -676,7 +676,7 @@ def viewbids():
     if(request.args.get('a')):
         cropid=request.args.get('a')
         cursor=conn.cursor()
-        cursor.execute(f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid ,bidding.state from cropinfo JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid={cropid}")
+        cursor.execute(f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid ,bidding.state from cropinfo JOIN bidding ON cropinfo.cropid=bidding.cropid where bidding.bidstatus IS NULL and cropinfo.cropid={cropid}")
         a=cursor.fetchall()
         print(type(a))
         a=list(a)
@@ -699,13 +699,53 @@ def viewbids():
             print((i[1]-dt).days)
             if (dt-i[1]).days<=7:
                 cursor.execute(
-                    f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
+                    f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid where bidding.bidstatus IS NULL and cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
                 l=cursor.fetchall()
                 if len(l)!=0:
                     a.append(l)
 
         print(a)
         return render_template('viewbid2.html',form=EmptyForm(),y=a)
+
+@app.route('/viewacceptbids',methods=['GET','POST'])
+def viewacceptbids():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'F'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    session.pop('value',None)
+    cursor = conn.cursor()
+    import datetime
+    dt = datetime.date.today()
+    owned = session['username']
+    cursor.execute(f"select cropid,enddate from cropinfo where owned='{owned}' ")
+    x = cursor.fetchall()
+    a = []
+    for i in x:
+        i = list(i)
+
+        print((i[1] - dt).days)
+        if (dt - i[1]).days <= 10:
+            cursor.execute(
+                f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state,payments.paymnetstatus,payments.paymentno from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid JOIN  payments on payments.bidid =bidding.bidid where bidding.bidstatus=1 and cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
+            l = cursor.fetchall()
+            if len(l) != 0:
+                a.append(l)
+
+    print(a)
+    return render_template('myorders.html', form=EmptyForm(), y=a)
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/bhome',methods=['GET','POST'])
@@ -976,10 +1016,11 @@ def viewcrop():
 
     crop=cursor.fetchone()
     sellerid=crop[7]
-    cursor.execute(f"SELECT first_name,last_name from userinfo where username = '{sellerid}'")
+    cursor.execute(f"SELECT first_name,last_name ,username from userinfo where username = '{sellerid}'")
     seller=cursor.fetchone()
+    user=seller[2]
     seller=seller[0]+" "+seller[1]
-    return render_template('viewcrop.html',crop=crop,form=form,seller=seller)
+    return render_template('viewcrop.html',crop=crop,form=form,seller=seller,user=user)
 
 @app.route('/addtocart',methods=['GET','POST'])
 def addtocart():
@@ -1065,12 +1106,7 @@ def viewprofile():
 
     form=EmptyForm()
     session.pop('value',None)
-    session.pop('quantity', None)
-    session.pop('crop',None)
 
-    session.pop('stated', None)
-    session.pop('crop', None)
-    session.pop('quantity', None)
 
     if (session.get('img')):
         os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
@@ -1086,14 +1122,54 @@ def viewprofile():
 
 
 
-@app.route('/acceptbid')
+@app.route('/acceptbid', methods=['GET', 'POST'])
 def acceptbid():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'F'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
 
-    return hello
+    form=AcceptBidForm()
+    if request.method=='POST':
+        if form.is_submitted():
+            cursor=conn.cursor()
+            bidid=session['temp']
+            session.pop('temp',None)
+            hname=form.Holder.data
+            ifsc = (form.ifsc.data)
+            account=int(form.Account.data)
+            cursor.execute(f"update bidding set bidstatus=1 where bidid ={bidid}")
+            conn.commit()
+            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}'); ")
+            conn.commit()
+            return redirect(url_for('fhome'))
+
+    a=request.args.get('a')
+    session['temp']=a
+    return render_template('acceptbid.html',form=form)
+
+
+
 
 @app.route('/declinetbid')
 def declinebid():
-    return hello
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'F'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('a')):
+        flash('Url not found ', 'danger')
+        return redirect(url_for('profile'))
+
+    cursor=conn.cursor()
+    bidid=request.args.get('a')
+    cursor.execute(f"update bidding set bidstatus = 0 where bidid={bidid}")
+    conn.commit()
+    return redirect(url_for('fhome'))
 
 
 
