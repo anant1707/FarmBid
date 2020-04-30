@@ -676,7 +676,7 @@ def viewbids():
     if(request.args.get('a')):
         cropid=request.args.get('a')
         cursor=conn.cursor()
-        cursor.execute(f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid from cropinfo JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid={cropid}")
+        cursor.execute(f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid ,bidding.state from cropinfo JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid={cropid}")
         a=cursor.fetchall()
         print(type(a))
         a=list(a)
@@ -699,7 +699,7 @@ def viewbids():
             print((i[1]-dt).days)
             if (dt-i[1]).days<=7:
                 cursor.execute(
-                    f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
+                    f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
                 l=cursor.fetchall()
                 if len(l)!=0:
                     a.append(l)
@@ -957,8 +957,8 @@ def viewcrop():
             cursor.execute(f"delete from bidding where bidid={buyid}")
             conn.commit()
         bid=float(bid)
-
-        cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity) VALUES ({id}, '{byer}', {bid},'{dt}',{quantity} );")
+        mystate=session['mystate']
+        cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity,state) VALUES ({id}, '{byer}', {bid},'{dt}',{quantity},'{mystate}' );")
         conn.commit()
         cursor.close()
         session.pop('stated', None)
@@ -1053,8 +1053,53 @@ def removecart():
 
     return redirect(url_for('viewcart'))
 
+
+@app.route('/viewprofile')
+def viewprofile():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not request.args.get('p')):
+        flash('Nothing selected to view profile', 'danger')
+        return redirect(url_for('profile'))
+
+    form=EmptyForm()
+    session.pop('value',None)
+    session.pop('quantity', None)
+    session.pop('crop',None)
+
+    session.pop('stated', None)
+    session.pop('crop', None)
+    session.pop('quantity', None)
+
+    if (session.get('img')):
+        os.remove(os.path.join(os.getcwd(), 'static/media/temp', session['img']))
+        session.pop('img', None)
+    cursor=conn.cursor()
+    user=request.args.get('p')
+    cursor.execute(f"select email from userinfo where username='{user}'")
+    a=cursor.fetchone()
+    a=a[0]
+
+    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], a.lower())
+    return render_template('viewprofile.html',dp=full_filename,form=form, dict1=dataret(a))
+
+
+
+@app.route('/acceptbid')
+def acceptbid():
+
+    return hello
+
+@app.route('/declinetbid')
+def declinebid():
+    return hello
+
+
+
 if(__name__== '__main__'):
         app.run(debug=True)
+
 
 
 """

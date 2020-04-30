@@ -96,3 +96,9 @@ class ViewCropForm(Form):
    price=quantity=StringField("BID PRICE",validators=[DataRequired()])
    quantity = StringField("QUANTITY", validators=[DataRequired()])
    submit = SubmitField("BID NOW")
+
+class AcceptBidForm(Form):
+   Holder=StringField("Enter Account holder name", validators=[DataRequired()])
+   Account=StringField("Enter Account Number", validators=[DataRequired()])
+   ifsc=StringField("Enter Ifsc Code", validators=[DataRequired()])
+   Transportation=StringField("Enter Transportation Details")

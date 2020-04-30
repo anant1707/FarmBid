@@ -43,6 +43,9 @@
                         REQUIRED QUANTITY
                     </th>
                     <th>
+                   B- STATE
+                    </th>
+                    <th>
                         DATED
                     </th>
                     <th>
@@ -52,7 +55,7 @@
                         DECLINE
                     </th>
                     <tr>
-                        <td>{{b[4]}}
+                        <td><a href="{{url_for('viewprofile',p=b[4])}}">{{b[4]}}</a>
                         </td>
                         <td>{{b[3]}}
                         </td>
@@ -64,7 +67,14 @@
                             {{b[6]}}
                         </td>
                         <td>
+                            {{b[9]}}
+                        </td>
+                        <td>
                             {{b[7]}}
+                        </td>
+                        <td><a href="{{url_for('acceptbid',a=b[8])}}"><button class="btn btn-primary btn-sm">ACCEPT</button></a>
+                        </td>
+                        <td><a href="{{url_for('declinebid',a=b[8])}}"><button class="btn btn-danger btn-sm">DECLINE</button></a>
                         </td>
 
                     </tr>

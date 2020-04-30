@@ -48,6 +48,9 @@
                         REQUIRED QUANTITY
                     </th>
                     <th>
+                       B-STATE
+                    </th>
+                    <th>
                         DATED
                     </th>
                     <th>
@@ -58,7 +61,7 @@
                     </th>
                     {% for crop in b %}
                     <tr>
-                        <td>{{crop[4]}}
+                        <td><a href="{{url_for('viewprofile',p=crop[4])}}"> {{crop[4]}}</a>
                         </td>
                         <td>{{crop[3]}}
                         </td>
@@ -69,9 +72,18 @@
                         <td>
                             {{crop[6]}}
                         </td>
+                        </td>
+                        <td>
+                            {{crop[9]}}
+                        </td>
                         <td>
                             {{crop[7]}}
                         </td>
+                         <td><a href="{{url_for('acceptbid',a=crop[8])}}"><button class="btn btn-primary btn-sm">ACCEPT</button></a>
+                        </td>
+                        <td><a href="{{url_for('declinebid',a=crop[8])}}"><button class="btn btn-danger btn-sm">DECLINE</button></a>
+                        </td>
+
 
                     </tr>
                     {% endfor %}
