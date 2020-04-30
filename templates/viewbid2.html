@@ -26,9 +26,11 @@
 
                 {%if y | length > 0%}
                 {%for b in y%}
-
+                                 <br>
+    <br>
+                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#a{{b[0][0]}}">{{b[0][1]}}</button>
+<div id="a{{b[0][0]}}" class="collapse">
                 <div class="table responsive">
-
                 <table>
                     <th>
                         BUYER ID
@@ -73,8 +75,10 @@
 
                     </tr>
                     {% endfor %}
+
                 </table>
             </div>
+</div>
             {%else%}
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
