@@ -15,40 +15,23 @@
             {% endfor %}
             {% endif %}
             {% endwith %}
-        <form method="POST" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-2">{{form.croptype.label}}{{form.croptype(class_="form-control")}}</div>
-                <div class="col-md-2">{{form.state.label}}{{form.state(class_="form-control")}}</div>
-                <div class="col-md-2">{{form.sortby.label}}{{form.sortby(class_="form-control")}}</div>
-                <div class="col-md-2">{{form.quantity.label}}{{form.quantity(class_="form-control")}}</div>
-
-                <div class="col-md-2">
-                    {% if session.get('stated') %}
-                  <a href="{{url_for('bhomereset')}}">RESET </a>
-
-                    {% else%}
-                    <br>
-                    {% endif %}
-                    <br>
-                    {{form.submit(class_="btn btn-primary btn-sm")}}
-                </div>
-
-            </div>
-<br>
-                </form>
 
         <section class="clean-block clean-form dark">
 
             <div class="container">
+
                 <div class="block-heading">
                                 <h2 style="text-align:center;" >RESULTS</h2>
                 </div>
-                {%if b | length > 0%}
+
+                {%if y | length > 0%}
+                {%for b in y%}
+
                 <div class="table responsive">
+
                 <table>
                     <th>
-                        Crop
+                        BUYER ID
                     </th>
                     <th>
                         Bidding Ends On
@@ -57,28 +40,37 @@
                         Base Price
                     </th>
                     <th>
-                        State
+                        PROPOSED PRICE
                     </th>
                     <th>
-                        View
+                        REQUIRED QUANTITY
                     </th>
                     <th>
-                        Save
+                        DATED
                     </th>
-                    {%for crop in b%}
+                    <th>
+                        ACCEPT
+                    </th>
+                    <th>
+                        DECLINE
+                    </th>
+                    {% for crop in b %}
                     <tr>
-                        <td>{{crop[1]}}
+                        <td>{{crop[4]}}
                         </td>
-                        <td>{{crop[5]}}
+                        <td>{{crop[3]}}
                         </td>
                         <td>{{crop[2]}}
                         </td>
-                        <td>{{crop[6]}}
+                        <td>{{crop[5]}}
                         </td>
-                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
+                        <td>
+                            {{crop[6]}}
                         </td>
-                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
+                        <td>
+                            {{crop[7]}}
                         </td>
+
                     </tr>
                     {% endfor %}
                 </table>
@@ -87,10 +79,13 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
+                {% endfor %}
             {%endif%}
+
     </div>
+
   </section>
-            
+
                  <script type="text/javascript">
                 function confirmation()
                 {
@@ -99,4 +94,4 @@
 
                 }
               </script>
-{% endblock content%}
+{% endblock content %}

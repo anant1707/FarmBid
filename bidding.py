@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -630,6 +630,8 @@ def deletecrop():
         cursor.close()
         return redirect(url_for('fhome'))
 
+
+
 @app.route('/fhome',methods=['GET','POST'])
 def fhome():
     if (not session.get('logged-in')):
@@ -659,6 +661,52 @@ def fhome():
 
 
     return render_template('fhome.html',form=form,b=a,dict1=dict1)
+
+
+
+@app.route('/viewbids',methods=['GET','POST'])
+def viewbids():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'F'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    session.pop('value',None)
+    if(request.args.get('a')):
+        cropid=request.args.get('a')
+        cursor=conn.cursor()
+        cursor.execute(f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid from cropinfo JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid={cropid}")
+        a=cursor.fetchall()
+        print(type(a))
+        a=list(a)
+        a=list(a)
+        print(a)
+
+        return render_template('viewbids.html',form=EmptyForm(),y=a)
+    else:
+        cursor=conn.cursor()
+        import datetime
+        dt=datetime.date.today()
+        owned=session['username']
+        cursor.execute(f"select cropid,enddate from cropinfo where owned='{owned}' ")
+        x=cursor.fetchall()
+        a=[]
+        for i in x:
+            i=list(i)
+
+
+            print((i[1]-dt).days)
+            if (dt-i[1]).days<=7:
+                cursor.execute(
+                    f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid where cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
+                l=cursor.fetchall()
+                if len(l)!=0:
+                    a.append(l)
+
+        print(a)
+        return render_template('viewbid2.html',form=EmptyForm(),y=a)
+
 
 @app.route('/bhome',methods=['GET','POST'])
 def bhome():
