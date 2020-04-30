@@ -31,6 +31,7 @@
                 <br>
                 <button type="button" class="btn btn-success" style="width:100%" data-toggle="collapse" data-target="#ACTIVE">ACTIVE BIDS</button>
 <div id="ACTIVE" class="collapse">
+    {%if activebids | length > 0%}
                 <div class="table responsive">
                 <table>
                     <th>
@@ -46,7 +47,7 @@
                         QUNATITY
                     </th>
 
-                    {% for crop in active %}
+                    {% for crop in activebids %}
                     <tr>
                         <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
                         </td>
@@ -65,7 +66,7 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
-                {% endfor %}
+
             {%endif%}
 
 
@@ -75,6 +76,7 @@
                 <br>
                 <button type="button" class="btn btn-danger" style="width:100%" data-toggle="collapse" data-target="#DECLINED">DECLINED BIDS</button>
 <div id="DECLINED" class="collapse">
+    {%if declinedbids | length > 0%}
                 <div class="table responsive">
                 <table>
                     <th>
@@ -90,7 +92,7 @@
                         QUNATITY
                     </th>
 
-                    {% for crop in active %}
+                    {% for crop in declinedbids %}
                     <tr>
                         <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
                         </td>
@@ -110,14 +112,15 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
-                {% endfor %}
+
             {%endif%}
 
 
                                  <br>
                 <br>
-                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PAST">PAST BIDS</button>
+                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PAST">PENDING BIDS</button>
 <div id="PAST" class="collapse">
+    {%if pendingbids | length > 0%}
                 <div class="table responsive">
                 <table>
                     <th>
@@ -133,7 +136,7 @@
                         QUNATITY
                     </th>
 
-                    {% for crop in active %}
+                    {% for crop in pendingbids %}
                     <tr>
                         <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
                         </td>
@@ -152,15 +155,16 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
-                {% endfor %}
+
             {%endif%}
 
 
 
                                  <br>
                 <br>
-                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PENDING">PENDING</button>
+                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PENDING">PAST BIDS</button>
 <div id="PENDING" class="collapse">
+    {%if pastbids | length > 0%}
                 <div class="table responsive">
                 <table>
                     <th>
@@ -176,7 +180,7 @@
                         QUNATITY
                     </th>
 
-                    {% for crop in active %}
+                    {% for crop in pastbids %}
                     <tr>
                         <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
                         </td>
@@ -195,7 +199,7 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
-                {% endfor %}
+
             {%endif%}
 
             </div>

@@ -14,8 +14,8 @@ import pickle
 import numpy as np
 import shutil
 import datetime
-G = pd.read_csv('pincode.csv')
-H = pd.read_excel('FINAL1.xls' )
+G = pd.read_csv('dataset/pincode.csv')
+H = pd.read_excel('dataset/FINAL1.xls' )
 
 sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
 sc_y = pickle.load(open('model/sc_y.sav', 'rb'))
@@ -1189,18 +1189,18 @@ def buyerbidstatus():
     dto=datetime.date.today().isoformat()
     dt1=datetime.date.today()-datetime.timedelta(days=100)
     dt1.isoformat()
-    cursor.execute(f"select bidid,cprice,quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payment.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and bidstatus=1  and cropinfo.enddate>='{dt1}'")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and bidstatus=1  and cropinfo.enddate>='{dt1}' ")
     activebids=cursor.fetchall()
 
-    cursor.execute(f"select bidid,cprice,quantity,dated,bidding.cropid,cropinfo.owned from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus=0 and cropinfo.enddate>='{dt1}'")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus=0 and cropinfo.enddate>='{dt1}'")
 
     declinedbids=cursor.fetchall()
-    cursor.execute(f"select bidid,cprice,quantity,dated,bidding.cropid,cropinfo.owned from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus IS NULL and cropinfo.enddate>='{dt1}'")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus IS NULL and cropinfo.enddate>='{dt1}'")
     pendingbids=cursor.fetchall()
-    cursor.execute(f"select bidid,cprice,quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payment.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid LEFT JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and cropinfo.enddate<'{dt1}'")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid LEFT JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and cropinfo.enddate<'{dt1}'")
     pastbids=cursor.fetchall()
 
-    return render_template('buyerbidstatus.html',activebids=activebids,declinedbids=declinedbids,pendingbids=pendingbids,pastbids=pastbids)
+    return render_template('buyerbidstatus.html',activebids=activebids,declinedbids=declinedbids,pendingbids=pendingbids,pastbids=pastbids,form=EmptyForm())
 
 
 
@@ -1213,8 +1213,10 @@ if(__name__== '__main__'):
 
 
 """
+                   
 files = ['file1.txt', 'file2.txt', 'file3.txt']
 for f in files:
     shutil.copy(f, 'dest_folder')
 os.remove(path)
-rename(fname, fname.replace(name, '', 1))"""
+rename(fname, fname.replace(name, '', 1))
+"""
