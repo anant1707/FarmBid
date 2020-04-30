@@ -1142,7 +1142,7 @@ def acceptbid():
             account=int(form.Account.data)
             cursor.execute(f"update bidding set bidstatus=1 where bidid ={bidid}")
             conn.commit()
-            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}'); ")
+            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport,paymnetstatus) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}',0); ")
             conn.commit()
             return redirect(url_for('fhome'))
 

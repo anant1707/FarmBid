@@ -76,9 +76,50 @@
                         <td><button class="btn btn-danger btn-sm">PENDING</button>
                         </td>
                         {% else %}
-                        <td><button class="btn btn-danger btn-sm">{{crop[11]}}</button>
+                        <td><button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#myModal">SUCCESS</button>
                         </td>
                         {% endif %}
+
+
+
+
+
+                        <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">PAYMENT NO.</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+            <h2>{{ crop[11]}}</h2>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                     </tr>
@@ -96,6 +137,12 @@
 
     </div>
 
+
+
+
+
+
+
   </section>
 
                  <script type="text/javascript">
@@ -106,4 +153,5 @@
 
                 }
               </script>
-{% endblock content %}
+
+        {% endblock content %}
