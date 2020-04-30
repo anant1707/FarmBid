@@ -73,10 +73,13 @@
                             {{crop[7]}}
                         </td>
                         {% if crop[10]==0%}
-                        <td><button class="btn btn-danger btn-sm">PENDING</button>
+                        <td><button class="btn ">PENDING</button><br>
+                           <a href="{{url_for('declinebid',a=crop[8])}}"> <button class="btn btn-danger btn-sm">DECLINE THIS BID</button></a>
+
                         </td>
                         {% else %}
                         <td><button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#myModal">SUCCESS</button>
+                         <td>
                         </td>
                         {% endif %}
 

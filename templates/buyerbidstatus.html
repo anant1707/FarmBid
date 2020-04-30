@@ -1,0 +1,285 @@
+{%extends "base.html"%}
+{%block title%}
+<title>{{title}}</title>
+{%endblock title%}
+{%block content%}
+    <main class="page login-page">
+         {% with messages=get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for c,m in messages %}
+            <div class="alert alert-{{c}}" role="alert">
+               <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
+                {{m}}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+                </div>
+
+            </div>
+<br>
+
+
+        <section class="clean-block clean-form dark">
+
+            <div class="container">
+                <div class="block-heading">
+                                <h2 style="text-align:center;" >ACCEPTED BIDS</h2>
+                </div>
+                {%if activebids | length > 0%}
+                <div class="table responsive">
+                <table>
+                    <th>
+                        Crop
+                    </th>
+                    <th>
+                        Bidding Ends On
+                    </th>
+                    <th>
+                        Base Price
+                    </th>
+                    <th>
+                        State
+                    </th>
+                    <th>
+                        View
+                    </th>
+                    <th>
+                        Save
+                    </th>
+                    {%for crop in b%}
+                    <tr>
+                        <td>{{crop[1]}}
+                        </td>
+                        <td>{{crop[5]}}
+                        </td>
+                        <td>{{crop[2]}}
+                        </td>
+                        <td>{{crop[6]}}
+                        </td>
+                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
+                        </td>
+                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+            {%endif%}
+
+
+
+                <div class="block-heading">
+                                <h2 style="text-align:center;" >RESULTS</h2>
+                </div>
+                {%if b | length > 0%}
+                <div class="table responsive">
+                <table>
+                    <th>
+                        Crop
+                    </th>
+                    <th>
+                        Bidding Ends On
+                    </th>
+                    <th>
+                        Base Price
+                    </th>
+                    <th>
+                        State
+                    </th>
+                    <th>
+                        View
+                    </th>
+                    <th>
+                        Save
+                    </th>
+                    {%for crop in b%}
+                    <tr>
+                        <td>{{crop[1]}}
+                        </td>
+                        <td>{{crop[5]}}
+                        </td>
+                        <td>{{crop[2]}}
+                        </td>
+                        <td>{{crop[6]}}
+                        </td>
+                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
+                        </td>
+                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+            {%endif%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="block-heading">
+                                <h2 style="text-align:center;" >RESULTS</h2>
+                </div>
+                {%if b | length > 0%}
+                <div class="table responsive">
+                <table>
+                    <th>
+                        Crop
+                    </th>
+                    <th>
+                        Bidding Ends On
+                    </th>
+                    <th>
+                        Base Price
+                    </th>
+                    <th>
+                        State
+                    </th>
+                    <th>
+                        View
+                    </th>
+                    <th>
+                        Save
+                    </th>
+                    {%for crop in b%}
+                    <tr>
+                        <td>{{crop[1]}}
+                        </td>
+                        <td>{{crop[5]}}
+                        </td>
+                        <td>{{crop[2]}}
+                        </td>
+                        <td>{{crop[6]}}
+                        </td>
+                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
+                        </td>
+                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+            {%endif%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="block-heading">
+                                <h2 style="text-align:center;" >RESULTS</h2>
+                </div>
+                {%if b | length > 0%}
+                <div class="table responsive">
+                <table>
+                    <th>
+                        Crop
+                    </th>
+                    <th>
+                        Bidding Ends On
+                    </th>
+                    <th>
+                        Base Price
+                    </th>
+                    <th>
+                        State
+                    </th>
+                    <th>
+                        View
+                    </th>
+                    <th>
+                        Save
+                    </th>
+                    {%for crop in b%}
+                    <tr>
+                        <td>{{crop[1]}}
+                        </td>
+                        <td>{{crop[5]}}
+                        </td>
+                        <td>{{crop[2]}}
+                        </td>
+                        <td>{{crop[6]}}
+                        </td>
+                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
+                        </td>
+                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+            {%endif%}
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </section>
+
+                 <script type="text/javascript">
+                function confirmation()
+                {
+                  var a=confirm("Are you sure you want to update ?")
+                  return a;
+
+                }
+              </script>
+{% endblock content%}
