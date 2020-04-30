@@ -25,253 +25,180 @@
         <section class="clean-block clean-form dark">
 
             <div class="container">
-                <div class="block-heading">
-                                <h2 style="text-align:center;" >ACCEPTED BIDS</h2>
-                </div>
-                {%if activebids | length > 0%}
+
+
+                                 <br>
+                <br>
+                <button type="button" class="btn btn-success" style="width:100%" data-toggle="collapse" data-target="#ACTIVE">ACTIVE BIDS</button>
+<div id="ACTIVE" class="collapse">
                 <div class="table responsive">
                 <table>
                     <th>
-                        Crop
+                        SELLER ID
                     </th>
                     <th>
-                        Bidding Ends On
+                        CURRENT BID
                     </th>
                     <th>
-                        Base Price
+                        DATE
                     </th>
                     <th>
-                        State
+                        QUNATITY
                     </th>
-                    <th>
-                        View
-                    </th>
-                    <th>
-                        Save
-                    </th>
-                    {%for crop in b%}
+
+                    {% for crop in active %}
                     <tr>
+                        <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
+                        </td>
+                        <td>{{crop[3]}}
+                        </td>
                         <td>{{crop[1]}}
                         </td>
-                        <td>{{crop[5]}}
-                        </td>
                         <td>{{crop[2]}}
-                        </td>
-                        <td>{{crop[6]}}
-                        </td>
-                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
-                        </td>
-                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
                         </td>
                     </tr>
                     {% endfor %}
                 </table>
             </div>
+</div>
             {%else%}
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
+                {% endfor %}
             {%endif%}
 
 
 
-                <div class="block-heading">
-                                <h2 style="text-align:center;" >RESULTS</h2>
-                </div>
-                {%if b | length > 0%}
+
+                                 <br>
+                <br>
+                <button type="button" class="btn btn-danger" style="width:100%" data-toggle="collapse" data-target="#DECLINED">DECLINED BIDS</button>
+<div id="DECLINED" class="collapse">
                 <div class="table responsive">
                 <table>
                     <th>
-                        Crop
+                        SELLER ID
                     </th>
                     <th>
-                        Bidding Ends On
+                        CURRENT BID
                     </th>
                     <th>
-                        Base Price
+                        DATE
                     </th>
                     <th>
-                        State
+                        QUNATITY
                     </th>
-                    <th>
-                        View
-                    </th>
-                    <th>
-                        Save
-                    </th>
-                    {%for crop in b%}
+
+                    {% for crop in active %}
                     <tr>
-                        <td>{{crop[1]}}
+                        <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
                         </td>
-                        <td>{{crop[5]}}
+                        <td>{{crop[3]}}
+                        </td>
+                        <td>{{crop[1]}}
                         </td>
                         <td>{{crop[2]}}
                         </td>
-                        <td>{{crop[6]}}
+                    </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+</div>
+            {%else%}
+            <div class="block-heading">
+                    <h2 >NO ITEMS TO SHOW</h2>
+                </div>
+                {% endfor %}
+            {%endif%}
+
+
+                                 <br>
+                <br>
+                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PAST">PAST BIDS</button>
+<div id="PAST" class="collapse">
+                <div class="table responsive">
+                <table>
+                    <th>
+                        SELLER ID
+                    </th>
+                    <th>
+                        CURRENT BID
+                    </th>
+                    <th>
+                        DATE
+                    </th>
+                    <th>
+                        QUNATITY
+                    </th>
+
+                    {% for crop in active %}
+                    <tr>
+                        <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
                         </td>
-                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
+                        <td>{{crop[3]}}
                         </td>
-                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
+                        <td>{{crop[1]}}
+                        </td>
+                        <td>{{crop[2]}}
                         </td>
                     </tr>
                     {% endfor %}
                 </table>
             </div>
+</div>
             {%else%}
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
+                {% endfor %}
             {%endif%}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <div class="block-heading">
-                                <h2 style="text-align:center;" >RESULTS</h2>
-                </div>
-                {%if b | length > 0%}
+                                 <br>
+                <br>
+                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PENDING">PENDING</button>
+<div id="PENDING" class="collapse">
                 <div class="table responsive">
                 <table>
                     <th>
-                        Crop
+                        SELLER ID
                     </th>
                     <th>
-                        Bidding Ends On
+                        CURRENT BID
                     </th>
                     <th>
-                        Base Price
+                        DATE
                     </th>
                     <th>
-                        State
+                        QUNATITY
                     </th>
-                    <th>
-                        View
-                    </th>
-                    <th>
-                        Save
-                    </th>
-                    {%for crop in b%}
+
+                    {% for crop in active %}
                     <tr>
+                        <td><a href="{{url_for('viewprofile',p=crop[5])}}"> {{crop[5]}}</a>
+                        </td>
+                        <td>{{crop[3]}}
+                        </td>
                         <td>{{crop[1]}}
                         </td>
-                        <td>{{crop[5]}}
-                        </td>
                         <td>{{crop[2]}}
-                        </td>
-                        <td>{{crop[6]}}
-                        </td>
-                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
-                        </td>
-                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
                         </td>
                     </tr>
                     {% endfor %}
                 </table>
             </div>
+</div>
             {%else%}
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
+                {% endfor %}
             {%endif%}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <div class="block-heading">
-                                <h2 style="text-align:center;" >RESULTS</h2>
-                </div>
-                {%if b | length > 0%}
-                <div class="table responsive">
-                <table>
-                    <th>
-                        Crop
-                    </th>
-                    <th>
-                        Bidding Ends On
-                    </th>
-                    <th>
-                        Base Price
-                    </th>
-                    <th>
-                        State
-                    </th>
-                    <th>
-                        View
-                    </th>
-                    <th>
-                        Save
-                    </th>
-                    {%for crop in b%}
-                    <tr>
-                        <td>{{crop[1]}}
-                        </td>
-                        <td>{{crop[5]}}
-                        </td>
-                        <td>{{crop[2]}}
-                        </td>
-                        <td>{{crop[6]}}
-                        </td>
-                        <td><a href="{{url_for('viewcrop',a=crop[0])}}"><button class="btn btn-primary btn-sm">VIEW CROP</button></a>
-                        </td>
-                        <td><a href="{{url_for('addtocart',a=crop[0])}}"><button class="btn btn-danger btn-sm">SAVE FOR LATER</button></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table>
             </div>
-            {%else%}
-            <div class="block-heading">
-                    <h2 >NO ITEMS TO SHOW</h2>
-                </div>
-            {%endif%}
-
-
-
-
-
-
-
-
-
-
-
-
-    </div>
   </section>
 
                  <script type="text/javascript">
@@ -283,3 +210,6 @@
                 }
               </script>
 {% endblock content%}
+
+
+
