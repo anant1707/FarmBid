@@ -35,9 +35,7 @@
                     <th>
                         BUYER ID
                     </th>
-                    <th>
-                        Bidding Ends On
-                    </th>
+
                     <th>
                         Base Price
                     </th>
@@ -54,16 +52,11 @@
                         DATED
                     </th>
                     <th>
-                        ACCEPT
-                    </th>
-                    <th>
-                        DECLINE
+                        PAYMENT STATUS
                     </th>
                     {% for crop in b %}
                     <tr>
                         <td><a href="{{url_for('viewprofile',p=crop[4])}}"> {{crop[4]}}</a>
-                        </td>
-                        <td>{{crop[3]}}
                         </td>
                         <td>{{crop[2]}}
                         </td>
@@ -79,10 +72,54 @@
                         <td>
                             {{crop[7]}}
                         </td>
-                         <td><a href="{{url_for('acceptbid',a=crop[8])}}"><button class="btn btn-primary btn-sm">ACCEPT</button></a>
+                        {% if crop[10]==0%}
+                        <td><button class="btn btn-danger btn-sm">PENDING</button>
                         </td>
-                        <td><a href="{{url_for('declinebid',a=crop[8])}}"><button class="btn btn-danger btn-sm">DECLINE</button></a>
+                        {% else %}
+                        <td><button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#myModal">SUCCESS</button>
                         </td>
+                        {% endif %}
+
+
+
+
+
+                        <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">PAYMENT NO.</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+            <h2>{{ crop[11]}}</h2>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                     </tr>
@@ -100,6 +137,12 @@
 
     </div>
 
+
+
+
+
+
+
   </section>
 
                  <script type="text/javascript">
@@ -110,4 +153,5 @@
 
                 }
               </script>
-{% endblock content %}
+
+        {% endblock content %}

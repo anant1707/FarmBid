@@ -82,7 +82,7 @@
                       </b>
                       </td>
                       <td>
-                        <a href="{{url_for('viewprofile',p=username)}}"> {{seller}}</a>
+                          <a href="{{url_for('viewprofile',p=user)}}">{{seller}}</a>
                       </td>
                     </tr>
 
@@ -133,6 +133,9 @@
         </div>
         
         <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
         
       </div>
     </div>
