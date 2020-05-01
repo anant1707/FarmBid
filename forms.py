@@ -98,8 +98,13 @@ class ViewCropForm(Form):
    submit = SubmitField("BID NOW")
 
 class AcceptBidForm(Form):
-   Holder=StringField("Enter Account holder name", validators=[DataRequired()])
+   Holder=StringField("Enter Holder Name", validators=[DataRequired()])
    Account=StringField("Enter Account Number", validators=[DataRequired()])
    ifsc=StringField("Enter Ifsc Code", validators=[DataRequired()])
    Transportation=StringField("Enter Transportation Details")
    Submit=SubmitField("Share details")
+
+
+class payment(Form):
+   paymentno=StringField("Enter Payment no", validators=[DataRequired()])
+   Submit=SubmitField("Share Payment Details")

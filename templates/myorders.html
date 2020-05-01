@@ -78,9 +78,15 @@
 
                         </td>
                         {% else %}
-                        <td><button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#myModal">SUCCESS</button>
+                        <td><button class="btn btn-success btn-sm"  data-toggle="modal" data-target="#myModal{{crop[8]}}">SUCCESS</button>
                          <td>
+                        {% if crop[12]==0 %}
+                        <a href="{{url_for('acceptpayment',a=crop[8])}}"> <button class="btn btn-primary btn-sm">CONFIRM PAYMENT</button></a>
                         </td>
+                        {% else %}
+                          <a href="{{url_for('acceptpayment',a=crop[8])}}"> <button class="btn btn-primary btn-sm">VIEW INVOICE</button></a>
+                        </td>
+                        {% endif %}
                         {% endif %}
 
 
@@ -88,7 +94,7 @@
 
 
                         <!-- The Modal -->
-  <div class="modal fade" id="myModal">
+  <div class="modal fade" id="myModal{{crop[8]}}">
     <div class="modal-dialog">
       <div class="modal-content">
 

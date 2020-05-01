@@ -3,7 +3,7 @@ from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
 import numpy as np
-from forms import ResetForm,RegistrationForm,LoginForm,EmptyForm,AcceptBidForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm,ViewCropForm
+from forms import ResetForm,payment,RegistrationForm,LoginForm,EmptyForm,AcceptBidForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm,ViewCropForm
 import os
 from flask_wtf.file import FileField,FileAllowed
 from passlib.hash import pbkdf2_sha256
@@ -54,7 +54,12 @@ def dataret(email):
 
 @app.route('/')
 def home():
-    session.pop('logged-in', False)
+    if(session.get('logged-in')):
+        if(session['username'][0]=='B'):
+            return redirect(url_for('bhome'))
+        if(session['username'][0]=='F'):
+            return redirect(url_for('fhome'))
+
     session.pop('phone', False)
     form=EmptyForm()
     return render_template('index.html',form=form)
@@ -729,7 +734,7 @@ def viewacceptbids():
         print((i[1] - dt).days)
         if (dt - i[1]).days <= 30:
             cursor.execute(
-                f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state,payments.paymnetstatus,payments.paymentno from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid JOIN  payments on payments.bidid =bidding.bidid where bidding.bidstatus=1 and cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
+                f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state,payments.paymnetstatus,payments.paymentno,payments.acceptstatus from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid JOIN  payments on payments.bidid =bidding.bidid where bidding.bidstatus=1 and cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
             l = cursor.fetchall()
             if len(l) != 0:
                 a.append(l)
@@ -762,7 +767,7 @@ def acceptbid():
             cursor.execute(f"update bidding set bidstatus=1 where bidid ={bidid}")
             conn.commit()
 
-            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport,paymnetstatus) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}',0); ")
+            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport,paymnetstatus,acceptstatus) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}',0,0); ")
             conn.commit()
             return redirect(url_for('fhome'))
 
@@ -787,7 +792,13 @@ def declinebid():
 
     cursor=conn.cursor()
     bidid=request.args.get('a')
+
     cursor.execute(f"update bidding set bidstatus = 0 where bidid={bidid}")
+    conn.commit()
+
+    conn.commit()
+
+    cursor.execute(f"delete from payments where bidid={bidid}")
     conn.commit()
     return redirect(url_for('fhome'))
 
@@ -1042,14 +1053,29 @@ def viewcrop():
         dt = datetime.date.today()
         dt = dt.isoformat()
 
-        cursor.execute(f"select bidid from bidding where cropid={id} and buyer='{byer}';")
+        cursor.execute(f"select bidid,bidstatus from bidding where cropid={id} and buyer='{byer}';")
 
         y = cursor.fetchone()
         if y is not None:
-            buyid=y[0]
-            flash("BID UPDATED",'success')
-            cursor.execute(f"delete from bidding where bidid={buyid}")
-            conn.commit()
+            if y[1]==1:
+               cursor.execute(f"select paymnetstatus from payments JOIN bidding on bidding.bidid=payments.bidid where payments.bidid={y[0]}")
+
+               bs = cursor.fetchone()
+               print(bs)
+               if bs[0]==1:
+                   flash("bid made another time,'success'")
+                   pass
+
+               else:
+                   buyid=y[0]
+                   flash("BID UPDATED",'success')
+                   cursor.execute(f"delete from bidding where bidid={buyid}")
+                   conn.commit()
+            else:
+                buyid = y[0]
+                flash("BID UPDATED", 'success')
+                cursor.execute(f"delete from bidding where bidid={buyid}")
+                conn.commit()
         bid=float(bid)
         mystate=session['mystate']
         cursor.execute(f"INSERT INTO bidding(cropid, buyer, cprice, dated,quantity,state) VALUES ({id}, '{byer}', {bid},'{dt}',{quantity},'{mystate}' );")
@@ -1074,7 +1100,10 @@ def viewcrop():
     seller=cursor.fetchone()
     user=seller[2]
     seller=seller[0]+" "+seller[1]
-    return render_template('viewcrop.html',crop=crop,form=form,seller=seller,user=user)
+    if request.args.get('not'):
+        return render_template('viewcrop.html', crop=crop, form=form, seller=seller, user=user,noti=0)
+    else:
+        return render_template('viewcrop.html',crop=crop,form=form,seller=seller,user=user,noti=1)
 
 @app.route('/addtocart',methods=['GET','POST'])
 def addtocart():
@@ -1182,29 +1211,87 @@ def buyerbidstatus():
     if (not session['username'][0] == 'B'):
         flash('URL NOT FOUND', 'danger')
         return redirect(url_for('profile'))
-    user=session['username']
+
     cursor=conn.cursor()
+    user=session['username']
+    form = payment()
     import datetime
     dt=datetime.date.today()
     dto=datetime.date.today().isoformat()
     dt1=datetime.date.today()-datetime.timedelta(days=100)
     dt1.isoformat()
-    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and bidstatus=1  and cropinfo.enddate>='{dt1}' ")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno,cropinfo.crop,cropinfo.baseprice,payments.acceptstatus from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and bidstatus=1  and cropinfo.enddate>='{dt1}' ")
     activebids=cursor.fetchall()
 
-    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus=0 and cropinfo.enddate>='{dt1}'")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,cropinfo.crop from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus=0 and cropinfo.enddate>='{dt1}'")
 
     declinedbids=cursor.fetchall()
-    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus IS NULL and cropinfo.enddate>='{dt1}'")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,cropinfo.crop from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus IS NULL and cropinfo.enddate>='{dt1}'")
     pendingbids=cursor.fetchall()
     cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid LEFT JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and cropinfo.enddate<'{dt1}'")
     pastbids=cursor.fetchall()
 
-    return render_template('buyerbidstatus.html',activebids=activebids,declinedbids=declinedbids,pendingbids=pendingbids,pastbids=pastbids,form=EmptyForm())
+    return render_template('buyerbidstatus.html',activebids=activebids,declinedbids=declinedbids,pendingbids=pendingbids,pastbids=pastbids,form=form)
 
 
+@app.route('/deletemycrop',methods=['GET','POST'])
+def deletemycrop():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'B'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('a')):
+        flash('Nothing selected to add in cart', 'danger')
+        return redirect(url_for('profile'))
+    cursor=conn.cursor()
+    id=request.args.get('a')
+    cursor.execute(f"delete from bidding where bidid={id}")
+    conn.commit()
+    flash("CROP DELETED SUCCESSFULLY",'info')
+    return redirect(url_for('bhome'))
 
+@app.route('/acceptpayment',methods=['GET','POST'])
+def acceptpayment():
 
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'F'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('a')):
+        flash('Bad Request', 'danger')
+        return redirect(url_for('profile'))
+    cursor=conn.cursor()
+    flash('payment confirmed','success')
+    cursor.execute(f"update payments set acceptstatus=1 where bidid={request.args.get('a')}")
+    conn.commit()
+    return redirect(url_for('viewacceptbids'))
+
+@app.route('/makepayment', methods=['GET', 'POST'])
+def makepayment():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+    if (not session['username'][0] == 'B'):
+        flash('URL NOT FOUND', 'danger')
+        return redirect(url_for('profile'))
+    if (not request.args.get('bidd')):
+        flash('bad request', 'danger')
+        return redirect(url_for('profile'))
+    if request.method == 'POST':
+        form=payment()
+        if form.is_submitted():
+            cursor = conn.cursor()
+            bidd = request.args.get('bidd')
+            pmt=form.paymentno.data
+            print(pmt)
+            print(bidd)
+            cursor.execute(f"update payments set paymnetstatus=1,paymentno='{pmt}' where bidid={bidd}")
+            conn.commit()
+            return redirect(url_for('buyerbidstatus'))
 
 
 if(__name__== '__main__'):
