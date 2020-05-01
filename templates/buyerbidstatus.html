@@ -244,6 +244,9 @@
                     <th>
                         ACCEPT STATUS
                     </th>
+                    <th>
+                        ACTION
+                    </th>
                     {% for crop in declinedbids %}
                     <tr>
                          <td>{{crop[6]}}
@@ -261,6 +264,9 @@
                         </td>
                          <td>
                             <button class="btn btn-danger btn-sm">DECLINED</button>
+                        </td>
+                         <td>
+                            <a href="{{url_for('deletemycrop',a=crop[0])}}"><button class="btn btn-danger btn-sm">DELETE BID</button></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -304,6 +310,9 @@
                     <th>
                         ACCEPT-STATUS
                     </th>
+                    <th>
+                        ACTION
+                    </th>
                     {% for crop in pendingbids %}
                     <tr>
                          <td>{{crop[6]}}
@@ -321,6 +330,9 @@
                         </td>
                         <td>
                            <button class="btn btn-danger btn-sm">PENDING</button>
+                        </td>
+                        <td>
+                            <a href="{{url_for('deletemycrop',a=crop[0])}}"><button class="btn btn-danger btn-sm">DELETE BID</button></a>
                         </td>
                     </tr>
                     {% endfor %}

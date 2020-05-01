@@ -131,7 +131,9 @@ def login():
 
 
                 session['username']=dict1['username']
-                return redirect(url_for('profile'))
+                filt=session['username'][0].lower()
+                srt=f"{filt}"+"home"
+                return redirect(url_for(srt))
 
             else:
                 flash("Incorrect Password!","danger")
@@ -570,6 +572,8 @@ def newcrop():
         flash('URL NOT FOUND','danger')
         return redirect(url_for('profile'))
     if(not session.get('crop')):
+        return redirect(url_for('fhome'))
+    if (not session.get('value')):
         return redirect(url_for('fhome'))
 
     session['up'] = 1

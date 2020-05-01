@@ -28,10 +28,16 @@
                     {% if session['username'][0]=='F' and session['up']==1 %}
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/fhome">HOME</a></li>
                      <li class="nav-item" role="presentation"><a class="nav-link" href="/upload">UPLOAD</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/viewbids">BIDS</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/viewacceptbids">ACCEPTED BIDS</a></li>
+
+
                         {% endif %}
                      {% if session['username'][0]=='B'%}
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/bhome">HOME</a></li>
-                     <li class="nav-item" role="presentation"><a class="nav-link" href="/viewcart">CART</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/buyerbidstatus">MY BIDS</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/viewcart">CART</a></li>
+
                         {% endif %}
 
 
