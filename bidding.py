@@ -1,4 +1,5 @@
 from builtins import str
+import generate
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
 import pandas as pd
@@ -1270,8 +1271,24 @@ def acceptpayment():
         return redirect(url_for('profile'))
     cursor=conn.cursor()
     flash('payment confirmed','success')
-    cursor.execute(f"update payments set acceptstatus=1 where bidid={request.args.get('a')}")
+    import datetime
+    dt=datetime.date.today().isoformat()
+    cursor.execute(f"update payments set acceptstatus=1,acceptdate='{dt}' where bidid={request.args.get('a')}")
+
     conn.commit()
+    cursor.execute(f"insert into bills(bidid) VALUES({request.args.get('a')})")
+    conn.commit()
+    bidid=request.args.get('a')
+    cursor.execute(f"select payments.bidid,bills.billno,userinfo.first_name,userinfo.last_name,payments.acceptdate,userinfo.address,bidding.quantity,bidding.cprice,cropinfo.crop,payments.paymentno from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
+    x=cursor.fetchone()
+    x=list(x)
+    user=session['username']
+    cursor.execute(f"select first_name,last_name,address from userinfo JOIN cropinfo on cropinfo.owned='{user}' JOIN bidding on bidding.cropid=cropinfo.cropid where bidding.bidid={request.args.get('a')}")
+    t=cursor.fetchone()
+    x.append(t[0])
+    x.append(t[1])
+    x.append(t[2])
+    generate.iamcalled(x)
     return redirect(url_for('viewacceptbids'))
 
 @app.route('/makepayment', methods=['GET', 'POST'])
