@@ -232,6 +232,22 @@ def updateimg():
         full_filename = os.path.join(app.config['UPLOAD_FOLDER'], session['email'].lower())
         return render_template('updateimg.html',form=form,dp=full_filename)
 
+@app.route('/deleteaccount', methods=['GET', 'POST'])
+def deleteaccount():
+    if (not session.get('logged-in')):
+        flash('LOGIN TO CONTINUE', 'danger')
+        return redirect(url_for('logout'))
+
+
+    session['up'] = 0
+    cursor=conn.cursor()
+    username=session['username']
+    cursor.execute(f"delete from userinfo where username='{username}'")
+    conn.commit()
+
+
+    return redirect(url_for('login'))
+
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
     session.pop('logged-in', False)
@@ -374,6 +390,8 @@ def logout():
     session.pop('state', None)
     session.pop('sortby', None)
     session.pop('mystate', None)
+    session.pop('fno', None)
+    session.pop('sno', None)
 
 
     if(session.get('img')):
@@ -842,8 +860,10 @@ def bhome():
             session['quantity']=form.quantity.data
             session['crop'] = str(d2[form.croptype.data])
             session['sortby']=form.sortby.data
+            session['cno']=form.croptype.data
+            session['sno']=form.state.data
 
-            return redirect(url_for('bhome'))
+            return redirect(url_for('bhome',))
 
     cursor = conn.cursor()
     dict1 = dataret(session['email'])
@@ -858,6 +878,10 @@ def bhome():
         quantity=session['quantity']
         q= f"select cropid,crop,baseprice,quantity,description,enddate,state from cropinfo where enddate>='{dt}' and quantity>={quantity}"
         if (sortby == 1 or sortby == 5):
+            if sortby==1:
+                form.sortby.choices=[(1,'NA'),(2,'DISTANCE'),(3,'PRICE-LOW TO HIGH'),(4,'PRICE-HIGH TO LOW'),(5,'LATEST')]
+            else:
+                form.sortby.choices = [(5, 'LATEST'),(1, 'NA'), (2, 'DISTANCE'), (3, 'PRICE-LOW TO HIGH'), (4, 'PRICE-HIGH TO LOW')]
             if state == 'NA':
                 if crop == 'NA':
                     cursor.execute(q)
@@ -877,6 +901,7 @@ def bhome():
                     a=cursor.fetchall()
                     a.reverse()
         elif sortby == 2:
+                form.sortby.choices = [(2, 'DISTANCE'),(1, 'NA'),  (3, 'PRICE-LOW TO HIGH'), (4, 'PRICE-HIGH TO LOW'),(5, 'LATEST')]
                 if state == 'NA':
                     if crop == 'NA':
                         cursor.execute(f"""select cropid,crop,baseprice,quantity,description,enddate,state 
@@ -909,6 +934,9 @@ def bhome():
 
                         a = cursor.fetchall()
         elif sortby == 3:
+            form.sortby.choices = [(3, 'PRICE-LOW TO HIGH'), (1, 'NA'), (2, 'DISTANCE'), (4, 'PRICE-HIGH TO LOW'),
+                                   (5, 'LATEST')]
+
             if state == 'NA':
                 if crop == 'NA':
                     cursor.execute(q + " order by baseprice asc;")
@@ -926,6 +954,8 @@ def bhome():
                     a = cursor.fetchall()
 
         elif sortby == 4:
+            form.sortby.choices = [(4, 'PRICE-HIGH TO LOW'), (1, 'NA'), (2, 'DISTANCE'),(3, 'PRICE-LOW TO HIGH'),
+                                   (5, 'LATEST')]
             if state == 'NA':
                 if crop == 'NA':
                     cursor.execute(q + " order by baseprice desc;")
@@ -942,20 +972,11 @@ def bhome():
                     a = cursor.fetchall()
         l1=(session['fcroplist'])
         l2=(session['fstatelist'])
-        l1[0]=list(l1[0])
-        l1[0][1]=crop
-        l1[0]=tuple(l1[0])
-        l2[0]=list(l2[0])
-        l2[0][1] = state
-        l2[0] = tuple(l2[0])
-        l2[0] = tuple(l2[0])
-        l1=list(l1)
-        l2=list(l2)
         form.croptype.choices=l1
         form.quantity.data=int(quantity)
         form.state.choices=l2
-        session['fcroplist']=l1
-        session['fstatelist']=l2
+        form.state.data=session['sno']
+        form.croptype.data=session['cno']
         return render_template('bhome.html', form=form, b=a)
 
 
@@ -967,6 +988,8 @@ def bhome():
         session.pop('stated', None)
         session.pop('crop', None)
         session.pop('quantity', None)
+        session.pop('fno',None)
+        session.pop('sno',None)
         import datetime
         dt=datetime.date.today()
         dt=dt.isoformat()
@@ -1279,15 +1302,18 @@ def acceptpayment():
     cursor.execute(f"insert into bills(bidid) VALUES({request.args.get('a')})")
     conn.commit()
     bidid=request.args.get('a')
-    cursor.execute(f"select payments.bidid,bills.billno,userinfo.first_name,userinfo.last_name,payments.acceptdate,userinfo.address,bidding.quantity,bidding.cprice,cropinfo.crop,payments.paymentno from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
+    cursor.execute(f"select payments.bidid,bills.billno,userinfo.first_name,userinfo.last_name,payments.acceptdate,userinfo.address,bidding.quantity,bidding.cprice,cropinfo.crop,payments.paymentno,payments.transport,payments.pid,userinfo.phone,userinfo.gst,userinfo.pincode from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
     x=cursor.fetchone()
     x=list(x)
     user=session['username']
-    cursor.execute(f"select first_name,last_name,address from userinfo JOIN cropinfo on cropinfo.owned='{user}' JOIN bidding on bidding.cropid=cropinfo.cropid where bidding.bidid={request.args.get('a')}")
+    cursor.execute(f"select first_name,last_name,address,phone,gst,pincode from userinfo JOIN cropinfo on cropinfo.owned='{user}' JOIN bidding on bidding.cropid=cropinfo.cropid where bidding.bidid={request.args.get('a')}")
     t=cursor.fetchone()
     x.append(t[0])
     x.append(t[1])
     x.append(t[2])
+    x.append(t[3])
+    x.append(t[4])
+    x.append(t[5])
     generate.iamcalled(x)
     return redirect(url_for('viewacceptbids'))
 
