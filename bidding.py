@@ -970,6 +970,24 @@ def bhome():
                 else:
                     cursor.execute(q + f"and crop='{crop}' and state='{state}'" + "order by baseprice desc;")
                     a = cursor.fetchall()
+        elif sortby == 6:
+            q1 = f"select cropinfo.cropid,crop,baseprice,cropinfo.quantity,description,cropinfo.enddate,cropinfo.state from cropinfo LEFT JOIN bidding on cropinfo.cropid=bidding.cropid  where enddate>='{dt}' and cropinfo.quantity>={quantity}"
+            form.sortby.choices = [(6,'Popularity'),(4, 'PRICE-HIGH TO LOW'), (1, 'NA'), (2, 'DISTANCE'),(3, 'PRICE-LOW TO HIGH'),
+                                   (5, 'LATEST')]
+            if state == 'NA':
+                if crop == 'NA':
+                    cursor.execute(q1 + f"group by cropinfo.cropid order by count(bidding.cropid) desc;")
+                    a = cursor.fetchall()
+                else:
+                    cursor.execute(q1 + f"and crop='{crop}'" + "group by cropinfo.cropid  order by count(bidding.cropid) desc;")
+                    a = cursor.fetchall()
+            else:
+                if crop == 'NA':
+                    cursor.execute(q1 + f"and cropinfo.state='{state}'" + "group by cropinfo.cropid order by count(bidding.cropid) desc;")
+                    a = cursor.fetchall()
+                else:
+                    cursor.execute(q1 + f"and crop='{crop}' and cropinfo.state='{state}'" + "group by cropinfo.cropid order by count(bidding.cropid) desc;")
+                    a = cursor.fetchall()
         l1=(session['fcroplist'])
         l2=(session['fstatelist'])
         form.croptype.choices=l1
