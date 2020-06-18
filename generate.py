@@ -5,14 +5,14 @@ from flask import send_file
 
 def get_context(invdata,contents):
 
-
     return {
         'invoice_no': invdata[0],
         'date': invdata[1],
+        'cost':invdata[17],
         'name': invdata[2],
         'address': invdata[3],
         'total': invdata[4],
-        'td':str(float(invdata[4])+float(5000)),
+        'td':str(float(invdata[4])+float(invdata[17])),
         'payment' :invdata[5],
         'transport':invdata[8],
         'pid':invdata[9],
@@ -24,6 +24,7 @@ def get_context(invdata,contents):
         'sphone': invdata[13],
         'sgst': invdata[14],
         'spincode': invdata[15],
+        'si':invdata[16],
 
         'row_contents': contents
     }
@@ -50,6 +51,6 @@ def iamcalled(x):
     with open(name+".docx", "wb") as f:
 
 
-        document=from_template('InvoiceTpl2.docx','signature.png',[x[1],x[4],x[2]+" "+x[3],x[5],float(x[6])*float(x[7]),x[9],x[15]+" "+x[16],x[17],x[10],x[11],x[12],x[13],x[14],x[18],x[19],x[20]],[{'description':x[8],'quantity':x[6],'rate':x[7],'amount':float(x[6])*float(x[7])}])
+        document=from_template('InvoiceTpl2.docx','signature.png',[x[1],x[4],x[2]+" "+x[3],x[5],float(x[6])*float(x[7]),x[9],x[15]+" "+x[16],x[17],x[10],x[11],x[12],x[13],x[14],x[18],x[19],x[20],x[21],x[23]],[{'description':x[8],'quantity':x[6],'rate':x[7],'amount':float(x[6])*float(x[7])}])
 
         f.write(document.getbuffer())

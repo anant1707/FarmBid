@@ -1325,12 +1325,15 @@ def acceptpayment():
     x.append(t[3])
     x.append(t[4])
     x.append(t[5])
-
-    generate.iamcalled(x)
     cursor.execute(
         f"select payments.si,userinfo.email,payments.cost from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
     anant = cursor.fetchone()
     buyeremail = anant[1]
+    anant=list(anant)
+    x.extend(anant)
+
+    generate.iamcalled(x)
+
 
     shutil.copy(os.path.join(os.getcwd(),str(x[0])+".docx"),
                 os.path.join(os.getcwd(), 'static/invoice', str(x[0])+".docx"))
