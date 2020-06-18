@@ -4,7 +4,8 @@ from docxtpl import DocxTemplate, InlineImage
 from flask import send_file
 
 def get_context(invdata,contents):
-  
+
+
     return {
         'invoice_no': invdata[0],
         'date': invdata[1],
