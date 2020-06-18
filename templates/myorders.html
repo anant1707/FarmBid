@@ -84,7 +84,7 @@
                         <a href="{{url_for('acceptpayment',a=crop[8])}}"> <button class="btn btn-primary btn-sm">CONFIRM PAYMENT</button></a>
                         </td>
                         {% else %}
-                          <a href="{{url_for('acceptpayment',a=crop[8])}}"> <button class="btn btn-primary btn-sm">VIEW INVOICE</button></a>
+                          <a href="{{url_for('static',filename='invoice/%s.docx'%(crop[8]))}}"> <button class="btn btn-primary btn-sm">VIEW INVOICE</button></a>
                         </td>
                         {% endif %}
                         {% endif %}
