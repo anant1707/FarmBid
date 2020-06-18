@@ -37,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -759,7 +759,7 @@ def viewacceptbids():
         print((i[1] - dt).days)
         if (dt - i[1]).days <= 30:
             cursor.execute(
-                f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state,payments.paymnetstatus,payments.paymentno,payments.acceptstatus from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid JOIN  payments on payments.bidid =bidding.bidid where bidding.bidstatus=1 and cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
+                f"select cropinfo.cropid,cropinfo.crop,cropinfo.baseprice,cropinfo.enddate,bidding.buyer,bidding.cprice, bidding.quantity,bidding.dated,bidding.bidid,bidding.state,payments.paymnetstatus,payments.paymentno,payments.acceptstatus,payments.si,payments.cost from cropinfo INNER JOIN bidding ON cropinfo.cropid=bidding.cropid JOIN  payments on payments.bidid =bidding.bidid where bidding.bidstatus=1 and cropinfo.cropid in (select cropid from cropinfo where cropid={i[0]})")
             l = cursor.fetchall()
             if len(l) != 0:
                 a.append(l)
@@ -787,12 +787,13 @@ def acceptbid():
             hname=form.Holder.data
             ifsc = (form.ifsc.data)
             account=int(form.Account.data)
+            cost = int(form.Cost.data)
             import datetime
             dt=datetime.date.today().isoformat()
             cursor.execute(f"update bidding set bidstatus=1 where bidid ={bidid}")
             conn.commit()
 
-            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport,paymnetstatus,acceptstatus) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}',0,0); ")
+            cursor.execute(f"INSERT INTO public.payments( bidid, holder, account, ifsc,transport,paymnetstatus,acceptstatus,cost) VALUES ({bidid},'{hname}',{account},'{ifsc}','{form.Transportation.data}',0,0,{cost}); ")
             conn.commit()
             return redirect(url_for('fhome'))
 
@@ -1257,7 +1258,7 @@ def buyerbidstatus():
     dto=datetime.date.today().isoformat()
     dt1=datetime.date.today()-datetime.timedelta(days=100)
     dt1.isoformat()
-    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno,cropinfo.crop,cropinfo.baseprice,payments.acceptstatus from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and bidstatus=1  and cropinfo.enddate>='{dt1}' ")
+    cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,payments.holder,payments.account,payments.ifsc,payments.transport,payments.paymnetstatus,payments.paymentno,cropinfo.crop,cropinfo.baseprice,payments.acceptstatus,payments.cost from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid JOIN payments on payments.bidid=bidding.bidid where bidding.buyer='{user}' and bidstatus=1  and cropinfo.enddate>='{dt1}' ")
     activebids=cursor.fetchall()
 
     cursor.execute(f"select bidding.bidid,cprice,bidding.quantity,dated,bidding.cropid,cropinfo.owned,cropinfo.crop from bidding JOIN cropinfo on cropinfo.cropid=bidding.cropid  where bidding.buyer='{user}' and bidstatus=0 and cropinfo.enddate>='{dt1}'")
@@ -1323,7 +1324,12 @@ def acceptpayment():
     x.append(t[3])
     x.append(t[4])
     x.append(t[5])
+    cursor.execute(
+        f"select payments.si from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
     generate.iamcalled(x)
+    shutil.copy(os.path.join(os.getcwd(),str(x[0])+".docx"),
+                os.path.join(os.getcwd(), 'static/invoice', str(x[0])+".docx"))
+    os.remove(os.path.join(os.getcwd(), str(x[0])+".docx"))
     return redirect(url_for('viewacceptbids'))
 
 @app.route('/makepayment', methods=['GET', 'POST'])
@@ -1343,15 +1349,20 @@ def makepayment():
             cursor = conn.cursor()
             bidd = request.args.get('bidd')
             pmt=form.paymentno.data
+            si=form.si.data
+            si=str(si)
+
             print(pmt)
             print(bidd)
-            cursor.execute(f"update payments set paymnetstatus=1,paymentno='{pmt}' where bidid={bidd}")
+            print(si)
+            print(f"update payments set paymnetstatus=1,paymentno='{pmt}',si={si} where bidid={bidd}")
+            cursor.execute(f"update payments set paymnetstatus=1,paymentno='{pmt}',si='{si}' where bidid={bidd}")
             conn.commit()
             return redirect(url_for('buyerbidstatus'))
 
 
 if(__name__== '__main__'):
-        app.run(host="192.168.1.5",debug=True)
+        app.run(debug=True)
 
 
 

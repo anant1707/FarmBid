@@ -25,13 +25,16 @@
 
                 <div class="col-md-2">
                     {% if session.get('stated') %}
-                  <a href="{{url_for('bhomereset')}}">RESET </a>
-
-                    {% else%}
                     <br>
-                    {% endif %}
+                  <a class="btn btn-danger btn-sm" href="{{url_for('bhomereset')}}">RESET </a>
+&nbsp;
+                    {{form.submit(class_="btn btn-primary btn-sm")}}
+
+
+                    {% else %}
                     <br>
                     {{form.submit(class_="btn btn-primary btn-sm")}}
+                    {% endif %}
                 </div>
 
             </div>

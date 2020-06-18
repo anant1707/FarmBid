@@ -101,9 +101,11 @@ class AcceptBidForm(Form):
    Account=StringField("Enter Account Number", validators=[DataRequired()])
    ifsc=StringField("Enter Ifsc Code", validators=[DataRequired()])
    Transportation=StringField("Enter Transportation Details")
+   Cost=IntegerField("Transportation Cost")
    Submit=SubmitField("Share details")
 
 
 class payment(Form):
    paymentno=StringField("Enter Payment no", validators=[DataRequired()])
+   si=StringField("Any Special Instructions?")
    Submit=SubmitField("Share Payment Details")
