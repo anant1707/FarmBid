@@ -2,6 +2,7 @@ from builtins import str
 import generate
 from flask import Flask,render_template,request,redirect,url_for,flash,session
 import psycopg2 as psql
+import mail
 import pandas as pd
 import numpy as np
 from forms import ResetForm,payment,RegistrationForm,LoginForm,EmptyForm,AcceptBidForm,UpdateForm,ForgotForm,NewPassForm,ImgForm,ChangePassword,CropUploadForm,AddCropForm,basepriceForm,SearchForm,ViewCropForm
@@ -1324,12 +1325,22 @@ def acceptpayment():
     x.append(t[3])
     x.append(t[4])
     x.append(t[5])
-    cursor.execute(
-        f"select payments.si from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
+
     generate.iamcalled(x)
+    cursor.execute(
+        f"select payments.si,userinfo.email,payments.cost from bidding JOIN payments on bidding.bidid=payments.bidid JOIN cropinfo on bidding.cropid=cropinfo.cropid JOIN userinfo on bidding.buyer=userinfo.username JOIN bills on bidding.bidid=bills.bidid where bidding.bidid={request.args.get('a')}  ")
+    anant = cursor.fetchone()
+    buyeremail = anant[1]
+
     shutil.copy(os.path.join(os.getcwd(),str(x[0])+".docx"),
                 os.path.join(os.getcwd(), 'static/invoice', str(x[0])+".docx"))
     os.remove(os.path.join(os.getcwd(), str(x[0])+".docx"))
+    mail.sendmail(receiver=f"{session['email']}", subject="INVOICE FOR YOUR ORDER ON FARMBID",
+                  body="Here is a system generated E-Invoice for your Purchase on Farmbid.Please Complete Payment for Your Order.\nRegards,\nTeam-Farmbid",
+                  file=os.path.join(os.getcwd(), 'static/invoice', str(x[0]) + ".docx"))
+    mail.sendmail(receiver=f"{buyeremail}", subject="INVOICE FOR YOUR ORDER ON FARMBID",
+                  body="Thankyou for choosing Farmbid!\nHere is a system generated E-Invoice for your Purchase on Farmbid.\nRegards,\nTeam-Farmbid",
+                  file=os.path.join(os.getcwd(), 'static/invoice', str(x[0]) + ".docx"))
     return redirect(url_for('viewacceptbids'))
 
 @app.route('/makepayment', methods=['GET', 'POST'])
