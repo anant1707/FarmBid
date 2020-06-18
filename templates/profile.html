@@ -2,6 +2,8 @@
 {%block title%}
 <title>{{title}}</title>
 {%endblock title%}
+
+
 {%block content%}
     <main class="page login-page">
          {% with messages=get_flashed_messages(with_categories=true) %}
@@ -53,9 +55,10 @@
             </div>
 
                  <script type="text/javascript">
-                function confirmation()
+
+                function deletionconfirmation()
                 {
-                  var a=confirm("Are you sure you want to update ?")
+                  var a=confirm("This will permanently delete your account and all its data , Are You sure you want to Continue?")
                   return a;
 
                 }
@@ -64,10 +67,10 @@
               </script>
 
             <p style="text-align:center;">
-  <a href="{{url_for('updateprofile')}}" onclick="return confirmation();"><button class="btn btn-primary">Update Profile</button></a>
-&nbsp; <a href="{{url_for('changepass')}}" onclick="return confirmation();"><button class="btn btn-primary">Change Password</button></a>
-&nbsp; <a href="{{url_for('updateimg')}}" onclick="return confirmation();"><button class="btn btn-primary">Change Image</button></a>
-  <a href="{{url_for('deleteaccount')}}" onclick="return confirmation();"><button class="btn btn-danger">DELETE ACCOUNT</button></a>
+  <a href="{{url_for('updateprofile')}}" "><button class="btn btn-sm btn-primary ">Update Profile</button></a>
+&nbsp; <a href="{{url_for('changepass')}}" "><button class="btn btn-sm btn-primary">Change Password</button></a>
+&nbsp; <a href="{{url_for('updateimg')}}" "><button class="btn btn-sm btn-primary">Change Image</button></a>
+  <a href="{{url_for('deleteaccount')}}" onclick="return deletionconfirmation();"><button class="btn btn-sm btn-danger">DELETE ACCOUNT</button></a>
 </p>
 </div>
                     </div>

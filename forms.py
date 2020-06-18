@@ -7,7 +7,7 @@ from flask_wtf.file import FileField,FileAllowed
 class RegistrationForm(Form):
    first_name = StringField("First Name",validators=[DataRequired(),Length(min=2,max=30)])
    last_name= StringField("Last Name",validators=[DataRequired(),Length(min=2,max=30)])
-   phone=StringField("Phone Number",validators=[DataRequired()])
+   phone=StringField("Phone Number",validators=[DataRequired(),Length(max=10,min=10)])
    email=StringField('Email',validators=[DataRequired(),Email()])
    password=PasswordField("Password",validators=[DataRequired(),Length(min=8,max=20)])
    cpassword = PasswordField("Confirm Password", validators=[DataRequired(), Length(min=8, max=20),EqualTo('password')])
@@ -16,9 +16,9 @@ class RegistrationForm(Form):
    aadhar=StringField("Aadhar Number",validators=[DataRequired(),Length(min=12,max=12)])
    panno=StringField("PAN NO.",validators=[DataRequired(),Length(min=10,max=10)])
    gst=StringField("GST",validators=[DataRequired(),Length(min=10,max=10)])
-   dob=DateField("DOB",format='%m-%d-%Y')
+   dob=DateField("DOB")
    type=SelectField(u'Type',choices=[('1','FARMER'),('2','BUYER')])
-   image=FileField(validators=[FileAllowed(['jpg','png'],'images only'),DataRequired()])
+   image=FileField(validators=[FileAllowed(['jpg','png','jpeg'],'images only'),DataRequired()])
    submit=SubmitField("Sign Up")
 
 class LoginForm(Form):
@@ -34,7 +34,6 @@ class UpdateForm(Form):
    last_name = StringField("Last Name", validators=[DataRequired(), Length(min=2, max=30)])
    address = TextAreaField("Address Feild", validators=[DataRequired(), Length(max=500)])
    pincode = StringField("Pincode", validators=[DataRequired(), Length(min=6, max=6)])
-   dob = StringField("DOB")
    submit = SubmitField("Update")
 
 class ForgotForm(Form):

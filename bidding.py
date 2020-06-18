@@ -17,7 +17,6 @@ import shutil
 import datetime
 G = pd.read_csv('dataset/pincode.csv')
 H = pd.read_excel('dataset/FINAL1.xls' )
-
 sc_X = pickle.load(open('model/sc_x.sav', 'rb'))
 sc_y = pickle.load(open('model/sc_y.sav', 'rb'))
 lab1 = pickle.load(open('model/labenc.pkl', 'rb'))
@@ -38,8 +37,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -71,7 +70,7 @@ def register():
     session.pop('phone', False)
     form=RegistrationForm()
     if request.method=='POST':
-        if form.is_submitted():
+        if form.validate_on_submit():
             cursor=conn.cursor()
             result=request.form.to_dict()
             result['email']=form.data['email'].lower()
@@ -89,16 +88,18 @@ def register():
                         regdata.append(f"F-{result['aadhar']}")
                     else:
                         regdata.append(f"B-{result['aadhar']}")
+            print(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
+
             try:
                 cursor.execute(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
-            except:
-                flash(f"User Credentials exists","danger")
-                return redirect(url_for('login'))
-            else:
+            except psql.Error as e:
 
+                flash(f"{e.diag.message_detail}","danger")
+                cursor.execute("rollback;")
+                return redirect(url_for('register'))
+            else:
                 form.image.data.save( os.path.join(os.getcwd(), 'static/media/profile_image', form.data['email'].lower()))
                 session['log-in']='reg'
-
                 session['phone']=result['phone']
                 flash("Verify Otp!","info")
                 return redirect(url_for('resetpass'))
@@ -179,7 +180,7 @@ def updateprofile():
     email=session['email']
     dict1=dataret(email)
     if form.is_submitted():
-        cursor.execute(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',dob='{form.dob.data}',pincode={form.pincode.data},address='{form.address.data}' where email='{email}'")
+        cursor.execute(f"UPDATE USERINFO set first_name='{form.first_name.data}',last_name='{form.last_name.data}',pincode={form.pincode.data},address='{form.address.data}' where email='{email}'")
         conn.commit()
         cursor.close()
         session.pop('list',None)
@@ -201,9 +202,7 @@ def updateprofile():
         form.first_name.data=dict1['first_name']
         form.last_name.data = dict1['last_name']
         form.pincode.data=dict1['pincode']
-        form.dob.data=dict1['dob']
         form.address.data=dict1['address']
-
         return render_template('updateprofile.html',form=form,dict1=dict1)
 
 @app.route('/updateimg', methods=['GET', 'POST'])
@@ -219,7 +218,10 @@ def updateimg():
         if form.is_submitted():
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], session['email']))
             form.image.data.save(os.path.join(os.getcwd(), 'static/media/profile_image', session['email']))
-            return redirect(url_for('profile'))
+            if (session['username'][0] == 'B'):
+                return redirect(url_for('bhome'))
+            if (session['username'][0] == 'F'):
+                return redirect(url_for('fhome'))
 
     else:
         session.pop('value', None)
@@ -567,7 +569,7 @@ def changebp():
             op=float(form.data['bp'])
             np=float(form.data['Bp'])
             if op>=np:
-                session['value']=op
+                session['value']=np
                 print(session['value'])
                 flash('PRICE UPDATED AND CROP UP FOR BIDDING','success')
                 return redirect(url_for('newcrop'))
@@ -824,16 +826,6 @@ def declinebid():
     cursor.execute(f"delete from payments where bidid={bidid}")
     conn.commit()
     return redirect(url_for('fhome'))
-
-
-
-
-
-
-
-
-
-
 
 
 @app.route('/bhome',methods=['GET','POST'])
@@ -1257,7 +1249,6 @@ def buyerbidstatus():
     if (not session['username'][0] == 'B'):
         flash('URL NOT FOUND', 'danger')
         return redirect(url_for('profile'))
-
     cursor=conn.cursor()
     user=session['username']
     form = payment()
@@ -1360,7 +1351,7 @@ def makepayment():
 
 
 if(__name__== '__main__'):
-        app.run(debug=True)
+        app.run(host="192.168.1.5",debug=True)
 
 
 

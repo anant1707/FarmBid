@@ -29,8 +29,10 @@
 
                                  <br>
                 <br>
-                <button type="button" class="btn btn-success" style="width:100%" data-toggle="collapse" data-target="#ACTIVE">ACTIVE BIDS</button>
-<div id="ACTIVE" class="collapse">
+                <div id="pastbids">
+                    <div class="accordion-group">
+                <button type="button" class="btn btn-success" style="width:100%" data-toggle="collapse" data-target="#ACTIVE" aria-expanded="false" aria-controls="ACTIVE" >ACTIVE BIDS</button>
+<div id="ACTIVE" class="collapse" data-parent="#pastbids">
     {%if activebids | length > 0%}
                 <div class="table responsive">
                 <table>
@@ -210,6 +212,7 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
+                </div>
 
             {%endif%}
 
@@ -218,8 +221,8 @@
 
                                  <br>
                 <br>
-                <button type="button" class="btn btn-danger" style="width:100%" data-toggle="collapse" data-target="#DECLINED">DECLINED BIDS</button>
-<div id="DECLINED" class="collapse">
+                <button type="button" class="btn btn-danger" style="width:100%" data-toggle="collapse" data-target="#DECLINED"  aria-expanded="false" aria-controls="DECLINDE" >DECLINED BIDS</button>
+<div class="collapse" id="DECLINED" data-parent="#pastbids">
     {%if declinedbids | length > 0%}
                 <div class="table responsive">
                 <table>
@@ -278,14 +281,15 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
+            </div>
 
             {%endif%}
 
 
                                  <br>
                 <br>
-                 <button type="button" class="btn btn-primary" style="width:100%" data-toggle="collapse" data-target="#PAST">PENDING BIDS</button>
-<div id="PAST" class="collapse">
+                 <button type="button" class="btn btn-primary" style="width:100%" data-toggle="collapse" data-target="#PAST" aria-expanded="false" aria-controls="PAST" >PENDING BIDS</button>
+<div class="collapse" id="PAST" data-parent="#pastbids">
     {%if pendingbids | length > 0%}
                 <div class="table responsive">
                 <table>
@@ -344,15 +348,15 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
-
+        </div>
             {%endif%}
 
 
 
                                  <br>
                 <br>
-                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PENDING">PAST BIDS</button>
-<div id="PENDING" class="collapse">
+                <button type="button" class="btn btn-info" style="width:100%" data-toggle="collapse" data-target="#PENDING" aria-expanded="false" aria-controls="PENDING" >PAST BIDS</button>
+<div class="collapse" id="PENDING" data-parent="#pastbids">
     {%if pastbids | length > 0%}
                 <div class="table responsive">
                 <table>
@@ -388,9 +392,10 @@
             <div class="block-heading">
                     <h2 >NO ITEMS TO SHOW</h2>
                 </div>
-
+        </div>
             {%endif%}
 
+            </div>
             </div>
   </section>
 
