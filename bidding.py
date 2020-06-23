@@ -38,8 +38,8 @@ def pred(X):
 
 PEOPLE_FOLDER=os.path.join('static','media/profile_image')
 CROP_FOLDER=os.path.join('static','media/cropimg')
-#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
-conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
+conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='Anant@1707'")
+#conn=psql.connect("dbname='PROJECT' user='postgres' host='localhost' password='1234'")
 app=Flask(__name__)
 app.secret_key='Nottobetold'
 app.config['UPLOAD_FOLDER']=PEOPLE_FOLDER
@@ -92,6 +92,7 @@ def register():
             print(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
 
             try:
+                print(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
                 cursor.execute(f"INSERT INTO USERINFO VALUES {tuple(regdata)}")
             except psql.Error as e:
 
@@ -1345,7 +1346,6 @@ def acceptpayment():
                   body="Thankyou for choosing Farmbid!\nHere is a system generated E-Invoice for your Purchase on Farmbid.\nRegards,\nTeam-Farmbid",
                   file=os.path.join(os.getcwd(), 'static/invoice', str(x[0]) + ".docx"))
     return redirect(url_for('viewacceptbids'))
-
 @app.route('/makepayment', methods=['GET', 'POST'])
 def makepayment():
     if (not session.get('logged-in')):
@@ -1381,10 +1381,11 @@ if(__name__== '__main__'):
 
 
 """
-                   
+
 files = ['file1.txt', 'file2.txt', 'file3.txt']
 for f in files:
     shutil.copy(f, 'dest_folder')
 os.remove(path)
 rename(fname, fname.replace(name, '', 1))
+
 """

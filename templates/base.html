@@ -57,12 +57,6 @@
     </nav>
 
 
-{%for field,errors in form.errors.items()%}
-<div class="alert alert-danger" role="alert">
-    <a href="#" class="close" data-dismiss='alert' aria-label="close">&times;</a>
-    {{ form[field].label }}: {{ ', '.join(errors) }}
-</div>
-            {% endfor %}
     {%block content%}
     {% endblock content%}
 </body>
